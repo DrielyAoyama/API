@@ -16,6 +16,7 @@ use FG\ASN1\Universal\Boolean;
 
 class BooleanTest extends ASN1TestCase
 {
+
     public function testGetType()
     {
         $object = new Boolean(true);
@@ -65,15 +66,15 @@ class BooleanTest extends ASN1TestCase
      */
     public function testFromBinary()
     {
-        $originalObject = new Boolean(true);
-        $binaryData = $originalObject->getBinary();
+        $originalobject = new Boolean(true);
+        $binaryData = $originalobject->getBinary();
         $parsedObject = Boolean::fromBinary($binaryData);
-        $this->assertEquals($originalObject, $parsedObject);
+        $this->assertEquals($originalobject, $parsedObject);
 
-        $originalObject = new Boolean(false);
-        $binaryData = $originalObject->getBinary();
+        $originalobject = new Boolean(false);
+        $binaryData = $originalobject->getBinary();
         $parsedObject = Boolean::fromBinary($binaryData);
-        $this->assertEquals($originalObject, $parsedObject);
+        $this->assertEquals($originalobject, $parsedObject);
     }
 
     /**
@@ -81,18 +82,18 @@ class BooleanTest extends ASN1TestCase
      */
     public function testFromBinaryWithOffset()
     {
-        $originalObject1 = new Boolean(true);
-        $originalObject2 = new Boolean(false);
+        $originalobject1 = new Boolean(true);
+        $originalobject2 = new Boolean(false);
 
-        $binaryData  = $originalObject1->getBinary();
-        $binaryData .= $originalObject2->getBinary();
+        $binaryData  = $originalobject1->getBinary();
+        $binaryData .= $originalobject2->getBinary();
 
         $offset = 0;
         $parsedObject = Boolean::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject1, $parsedObject);
+        $this->assertEquals($originalobject1, $parsedObject);
         $this->assertEquals(3, $offset);
         $parsedObject = Boolean::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject2, $parsedObject);
+        $this->assertEquals($originalobject2, $parsedObject);
         $this->assertEquals(6, $offset);
     }
 

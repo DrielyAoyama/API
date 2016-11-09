@@ -10,18 +10,15 @@
 
 namespace FG\ASN1;
 
-use Exception;
-
 abstract class AbstractString extends Object implements Parsable
 {
     /** @var string */
     protected $value;
     private $checkStringForIllegalChars = true;
-    private $allowedCharacters = [];
+    private $allowedCharacters = array();
 
     /**
      * The abstract base class for ASN.1 classes which represent some string of character.
-     *
      * @param string $string
      */
     public function __construct($string)
@@ -39,8 +36,9 @@ abstract class AbstractString extends Object implements Parsable
         $this->allowedCharacters[] = $character;
     }
 
-    protected function allowCharacters(...$characters)
+    protected function allowCharacters($character1, $character2 = null, $characterN = null)
     {
+        $characters = func_get_args();
         foreach ($characters as $character) {
             $this->allowedCharacters[] = $character;
         }
@@ -103,7 +101,7 @@ abstract class AbstractString extends Object implements Parsable
         for ($i = 0; $i < $stringLength; $i++) {
             if (in_array($this->value[$i], $this->allowedCharacters) == false) {
                 $typeName = Identifier::getName($this->getType());
-                throw new Exception("Could not create a {$typeName} from the character sequence '{$this->value}'.");
+                throw new \Exception("Could not create a {$typeName} from the character sequence '{$this->value}'.");
             }
         }
     }
@@ -129,7 +127,7 @@ abstract class AbstractString extends Object implements Parsable
             $testObject->checkString();
 
             return true;
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             return false;
         }
     }

@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: 05-Nov-2016 às 03:21
+-- Generation Time: 09-Nov-2016 às 01:41
 -- Versão do servidor: 10.1.16-MariaDB
 -- PHP Version: 5.6.24
 
@@ -50,7 +50,7 @@ INSERT INTO `algoritmos` (`id`, `nome`, `media_tempo_processamento`, `qtde_execu
 (5, '3DES', 0.000781217, 3, 'TEXTO', 'SIMETRICO', 'S', '2016-10-26 11:58:31', NULL),
 (6, 'RSA', 17.8452, 0, 'TEXTO', 'ASSIMETRICA', 'S', '2016-08-29 23:50:36', NULL),
 (7, 'ECC', 0.412727, 2, 'TEXTO', 'ASSIMETRICA', 'S', '2016-10-26 11:52:37', NULL),
-(8, 'SHA1', 0.0000214577, 2, 'TEXTO', 'HASH', 'N', '2016-11-05 02:20:52', NULL),
+(8, 'SHA1', 0.0000240008, 20, 'TEXTO', 'HASH', 'N', '2016-11-09 00:39:08', NULL),
 (9, 'SHA256', 0.00000214577, 0, 'TEXTO', 'HASH', 'N', '2016-08-29 23:50:36', NULL),
 (10, 'SHA512', 0.00000214577, 0, 'TEXTO', 'HASH', 'N', '2016-08-29 23:50:36', NULL),
 (11, 'SIMON', 0.00112915, 0, 'ARRAY', 'LEVE', 'S', '2016-08-29 23:47:28', NULL),
@@ -189,7 +189,8 @@ INSERT INTO `log` (`id`, `descricao`, `usuario`, `algoritmo_id`, `algoritmo_desc
 (55, 'Codificação', 1, 1, 'AES_128_BITS', 0.00163794, '2016-11-04 23:21:23', NULL),
 (56, 'Codificação', 1, 1, 'AES_128_BITS', 0.00159812, '2016-11-04 23:50:48', NULL),
 (57, 'Codificação', 1, 8, 'SHA1', 0.0000209808, '2016-11-05 02:16:19', NULL),
-(58, 'Codificação', 1, 8, 'SHA1', 0.0000219345, '2016-11-05 02:20:52', NULL);
+(58, 'Codificação', 1, 8, 'SHA1', 0.0000219345, '2016-11-05 02:20:52', NULL),
+(59, 'Codificação', 1, 8, 'SHA1', 0.0000290871, '2016-11-06 13:57:28', NULL);
 
 -- --------------------------------------------------------
 
@@ -262,6 +263,28 @@ INSERT INTO `pesos` (`id`, `nome_algoritmo`, `_1`, `_2`, `_3`, `_4`, `_5`, `_6`,
 (12, 'SPECK', 1, 1, 1, 1, 2, 2, 2),
 (13, 'DES', 1, 1, 2, 2, 3, 3, 3),
 (14, 'SIMECK', 1, 1, 1, 1, 1, 1, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Estrutura da tabela `protocolos`
+--
+
+CREATE TABLE `protocolos` (
+  `protocolo` varchar(100) NOT NULL,
+  `algoritmo` int(11) NOT NULL,
+  `chave_publica` varchar(500) NOT NULL,
+  `chave_privada` varchar(500) NOT NULL,
+  `tempo_processamento` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Extraindo dados da tabela `protocolos`
+--
+
+INSERT INTO `protocolos` (`protocolo`, `algoritmo`, `chave_publica`, `chave_privada`, `tempo_processamento`) VALUES
+('1ce5ea0b07094b14c9eefc98afcae1096d9618ce', 8, '', '', 0),
+('4880d5aaf301daa66568404d02b1bcb85f37c809', 8, '', '', 0);
 
 -- --------------------------------------------------------
 
@@ -447,6 +470,12 @@ ALTER TABLE `pesos`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `protocolos`
+--
+ALTER TABLE `protocolos`
+  ADD PRIMARY KEY (`protocolo`);
+
+--
 -- Indexes for table `testes_velocidade`
 --
 ALTER TABLE `testes_velocidade`
@@ -481,7 +510,7 @@ ALTER TABLE `faixas_tempo`
 -- AUTO_INCREMENT for table `log`
 --
 ALTER TABLE `log`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=60;
 --
 -- AUTO_INCREMENT for table `niveis`
 --

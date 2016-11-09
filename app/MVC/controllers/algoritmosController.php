@@ -13,12 +13,8 @@ require __DIR__."/../../algoritmos/phpseclib/Crypt/RSA.php";
 require __DIR__."/../../algoritmos/ascii85.php";
 require __DIR__."/../../algoritmos/rc4.php";
 require __DIR__."/../../algoritmos/reverse.php";
-
-use Mdanter\Ecc\EccFactory;
-use Mdanter\Ecc\Crypto\Signature\Signer;
-use Mdanter\Ecc\Serializer\PrivateKey\PemPrivateKeySerializer;
-use Mdanter\Ecc\Serializer\PrivateKey\DerPrivateKeySerializer;
-use Mdanter\Ecc\Serializer\Signature\DerSignatureSerializer;
+use \Mdanter\Ecc\EccFactory;
+use \Mdanter\Ecc\Message\MessageFactory;
 //classes de seleção de algoritimo (E)
 
 class algoritmosController extends controller
@@ -48,13 +44,31 @@ class algoritmosController extends controller
          $criptografado = call_user_func_array(array("algoritmosController","CRIPTOGRAFAR_".$algoritmo_escolhido->nome), array($texto,$id_alg));
          $tempo = endExec();
          $algoritmo = DB::table('algoritmos')->find($id_alg)->nome;
-         registralog('Codificação',$algoritmo,$id_alg,$tempo);
-         $this->CalcularMediaTempo($id_alg);
+         $this->registraprotocolo($protocolo=$this->criar_protocolo(),$id_alg,$chave_publica="",$chave_privada="",endExec());
+         // $this->CalcularMediaTempo($id_alg);
          $this->IncrementarQtdeExecucoes($id_alg);
-         return ['codificado'=>$criptografado,'algoritmo'=>$algoritmo,'tempo_processamento'=>$tempo];
+         return ['codificado'=>$criptografado,'protocolo'=>$protocolo];
       }
    }
 
+   private function criar_protocolo()
+   {
+      $novo = false;
+      while(!$novo):
+         $protocolo = $this->GerarChaveAleatoria(30,true,true,true);          
+         $protocolo = sha1(md5($protocolo));
+         $result = query("select * from protocolos where protocolo='{$protocolo}'");
+         if(count($result)<=0)
+            $novo=true;
+      endwhile;
+
+      return  $protocolo;
+   }
+
+   private function registraprotocolo($protocolo,$alg,$chave_publica="",$chave_privada="",$tempo)
+   {
+      DB::table('protocolos')->insert(['protocolo' =>$protocolo,'algoritmo'=>$alg,'chave_publica'=>$chave_publica,'chave_privada'=>$chave_privada, 'tempo_processamento' => $tempo]);
+   }
 
    public function SelecionarAlgoritmo($auto_selecao=true,$nome_algoritmo="")
    {
@@ -255,29 +269,15 @@ class algoritmosController extends controller
    }    
 
    public function CRIPTOGRAFAR_ECC($texto,$id_alg=0)
-   {     
-      $adapter = EccFactory::getAdapter();
-      $generator = EccFactory::getNistCurves()->generator384();
-      $useDerandomizedSignatures = true;
-      $algorithm = 'sha256';
-      $pemSerializer = new PemPrivateKeySerializer(new DerPrivateKeySerializer($adapter));
-      $keyData = file_get_contents(PASTA_VENDOR.'/mdanter/ecc/tests/data/openssl-priv.pem');
-      $key = $pemSerializer->parse($keyData);
-      $document = $texto;
-      $signer = new Signer($adapter);
-      $hash = $signer->hashData($generator, $algorithm, $document);
-      if ($useDerandomizedSignatures) {
-          $random = \Mdanter\Ecc\Random\RandomGeneratorFactory::getHmacRandomGenerator($key, $hash, $algorithm);
-      } else {
-          $random = \Mdanter\Ecc\Random\RandomGeneratorFactory::getRandomGenerator();
-      }
+   {           
+      $math = EccFactory::getAdapter();
+      $generator = EccFactory::getNistCurves()->generator256();
+      $alice = $generator->createPrivateKey();
 
-      $randomK = $random->generate($generator->getOrder());
-      $signature = $signer->sign($key, $hash, $randomK);
-
-      $serializer = new DerSignatureSerializer();
-      $serializedSig = $serializer->serialize($signature);
-      return  base64_encode($serializedSig) . PHP_EOL;
+      $messages = new MessageFactory($math);
+      $message = $messages->plaintext($texto, 'sha256');
+      $aliceDh = $alice->createExchange($messages, $alice->getPublicKey());
+      return $aliceDh->encrypt($message)->getContent() . PHP_EOL;;
    }
 
    public function CRIPTOGRAFAR_SHA1($texto,$id_alg=0)
@@ -312,32 +312,33 @@ class algoritmosController extends controller
       $speck = new simeck($texto);
       return $speck->criptografar();
    }
-}
 
-
-
-function GerarChaveAleatoria($tamanho = 8, $maiusculas = true, $numeros = true, $simbolos = false)
-{
-        // Caracteres de cada tipo
-   $lmin = 'abcdefghijklmnopqrstuvwxyz';
-   $lmai = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-   $num = '1234567890';
-   $simb = '!@#$%*-';
-      // Variáveis internas
-   $retorno = '';
-   $caracteres = '';
-     // Agrupamos todos os caracteres que poderão ser utilizados
-   $caracteres .= $lmin;
-   if ($maiusculas) $caracteres .= $lmai;
-   if ($numeros) $caracteres .= $num;
-   if ($simbolos) $caracteres .= $simb;
-   // Calculamos o total de caracteres possíveis
-   $len = strlen($caracteres);
-   for ($n = 1; $n <= $tamanho; $n++) {
-   // Criamos um número aleatório de 1 até $len para pegar um dos caracteres
-    $rand = mt_rand(1, $len);
-      // Concatenamos um dos caracteres na variável $retorno
-      $retorno .= $caracteres[$rand-1];
+   public function GerarChaveAleatoria($tamanho = 8, $maiusculas = true, $numeros = true, $simbolos = false)
+   {
+           // Caracteres de cada tipo
+      $lmin = 'abcdefghijklmnopqrstuvwxyz';
+      $lmai = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      $num = '1234567890';
+      $simb = '!@#$%*-';
+         // Variáveis internas
+      $retorno = '';
+      $caracteres = '';
+        // Agrupamos todos os caracteres que poderão ser utilizados
+      $caracteres .= $lmin;
+      if ($maiusculas) $caracteres .= $lmai;
+      if ($numeros) $caracteres .= $num;
+      if ($simbolos) $caracteres .= $simb;
+      // Calculamos o total de caracteres possíveis
+      $len = strlen($caracteres);
+      for ($n = 1; $n <= $tamanho; $n++) {
+      // Criamos um número aleatório de 1 até $len para pegar um dos caracteres
+       $rand = mt_rand(1, $len);
+         // Concatenamos um dos caracteres na variável $retorno
+         $retorno .= $caracteres[$rand-1];
+      }
+      return $retorno;
    }
-   return $retorno;
 }
+
+
+

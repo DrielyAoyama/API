@@ -23,22 +23,6 @@ class testesController extends controller
       echo $this->view('testes.index',compact('algoritmos'));
    }
 
-   public function hello($nome)
-   {
-      echo "hello, ".$nome;
-   }
-   public function getExemploRest()
-   {
-      $app = new Rest();
-      $app->response()->header('Content-Type', 'application/json;charset=utf-8');
-
-      $app->get('testes','hello',compact('nome'));
-      $app->get("/",function($nome,$idade)
-                  {
-                     return json_encode($nome.",".$idade." Anos");
-                  },['nome'=>'Joao','idade'=>15]);
-     $app->run();
-   }
  
 
    public function postTestar()
@@ -92,16 +76,17 @@ class testesController extends controller
       return $this->Processar($algoritimo,endExec());
    }
 
-   // public function getTestar($algoritimo,$texto)
-   // {
-   //    ini_set("max_execution_time", 0);
-   //    set_time_limit(0);
-   //    startExec();
+   public function getTestar($algoritimo,$texto)
+   {
+      ini_set("max_execution_time", 0);
+      set_time_limit(0);
+      startExec();
 
-   //    $resultado = call_user_func_array(array("algoritmosController","CRIPTOGRAFAR_".$algoritimo), array($texto));
-   //    unset($texto);
-   //    print_r($resultado);
-   // }
+      $resultado = call_user_func_array(array("algoritmosController","CRIPTOGRAFAR_".$algoritimo), array($texto));
+      unset($texto);
+      echo utf8_decode($resultado);
+      echo '<br>'.endExec();;
+   }
 
    public function gerarArquivo($tamanho)
    {

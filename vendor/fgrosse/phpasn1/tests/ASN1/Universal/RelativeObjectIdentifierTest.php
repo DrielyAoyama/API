@@ -16,6 +16,7 @@ use FG\ASN1\Universal\RelativeObjectIdentifier;
 
 class RelativeObjectIdentifierTest extends ASN1TestCase
 {
+
     public function testGetType()
     {
         $object = new RelativeObjectIdentifier('8751.3.2');
@@ -37,10 +38,10 @@ class RelativeObjectIdentifierTest extends ASN1TestCase
     public function testGetObjectLength()
     {
         $object = new RelativeObjectIdentifier('1.2.3');
-        $this->assertEquals(2 + 3, $object->getObjectLength());
+        $this->assertEquals(2+3, $object->getObjectLength());
 
         $object = new RelativeObjectIdentifier('1.2.250.1.16.9');
-        $this->assertEquals(2 + 7, $object->getObjectLength());
+        $this->assertEquals(2+7, $object->getObjectLength());
     }
 
     public function testGetBinary()
@@ -60,10 +61,10 @@ class RelativeObjectIdentifierTest extends ASN1TestCase
      */
     public function testFromBinary()
     {
-        $originalObject = new RelativeObjectIdentifier('8571.3.2');
-        $binaryData = $originalObject->getBinary();
+        $originalobject = new RelativeObjectIdentifier('8571.3.2');
+        $binaryData = $originalobject->getBinary();
         $parsedObject = RelativeObjectIdentifier::fromBinary($binaryData);
-        $this->assertEquals($originalObject, $parsedObject);
+        $this->assertEquals($originalobject, $parsedObject);
     }
 
     /**
@@ -71,18 +72,18 @@ class RelativeObjectIdentifierTest extends ASN1TestCase
      */
     public function testFromBinaryWithOffset()
     {
-        $originalObject1 = new RelativeObjectIdentifier('8571.3.2');
-        $originalObject2 = new RelativeObjectIdentifier('45.2.3455.1');
+        $originalobject1 = new RelativeObjectIdentifier('8571.3.2');
+        $originalobject2 = new RelativeObjectIdentifier('45.2.3455.1');
 
-        $binaryData  = $originalObject1->getBinary();
-        $binaryData .= $originalObject2->getBinary();
+        $binaryData  = $originalobject1->getBinary();
+        $binaryData .= $originalobject2->getBinary();
 
         $offset = 0;
         $parsedObject = RelativeObjectIdentifier::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject1, $parsedObject);
+        $this->assertEquals($originalobject1, $parsedObject);
         $this->assertEquals(6, $offset);
         $parsedObject = RelativeObjectIdentifier::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject2, $parsedObject);
+        $this->assertEquals($originalobject2, $parsedObject);
         $this->assertEquals(13, $offset);
     }
 

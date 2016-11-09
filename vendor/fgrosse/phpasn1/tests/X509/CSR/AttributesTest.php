@@ -21,6 +21,7 @@ use FG\X509\SAN\SubjectAlternativeNames;
 
 class AttributesTest extends ASN1TestCase
 {
+
     public function testGetType()
     {
         $object = new Attributes();
@@ -38,7 +39,7 @@ class AttributesTest extends ASN1TestCase
         $attributes = new Attributes();
         $content = $attributes->getContent();
         $this->assertTrue(is_array($content));
-        $this->assertEquals(0, count($content));
+        $this->assertEquals(0, sizeof($content));
 
         $sans = new SubjectAlternativeNames();
         $sans->addDomainName(new DNSName('corvespace.de'));
@@ -48,7 +49,7 @@ class AttributesTest extends ASN1TestCase
         $attributes->addAttribute(OID::PKCS9_EXTENSION_REQUEST, $extensionRequest);
         $content = $attributes->getContent();
         $this->assertTrue(is_array($content));
-        $this->assertEquals(1, count($content));
+        $this->assertEquals(1, sizeof($content));
 
         /** @var Sequence $attribute */
         $attribute = $content[0];
@@ -65,15 +66,15 @@ class AttributesTest extends ASN1TestCase
 
     public function testFromBinary()
     {
-        $originalObject = new Attributes();
+        $originalobject = new Attributes();
         $sans = new SubjectAlternativeNames();
         $sans->addDomainName(new DNSName('corvespace.de'));
         $extensionRequest = new CertificateExtensions();
         $extensionRequest->addSubjectAlternativeNames($sans);
-        $originalObject->addAttribute(OID::PKCS9_EXTENSION_REQUEST, $extensionRequest);
+        $originalobject->addAttribute(OID::PKCS9_EXTENSION_REQUEST, $extensionRequest);
 
-        $binaryData = $originalObject->getBinary();
+        $binaryData = $originalobject->getBinary();
         $parsedObject = Attributes::fromBinary($binaryData);
-        $this->assertEquals($originalObject, $parsedObject);
+        $this->assertEquals($originalobject, $parsedObject);
     }
 }

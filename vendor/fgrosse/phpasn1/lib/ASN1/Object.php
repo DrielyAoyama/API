@@ -46,35 +46,29 @@ abstract class Object implements Parsable
     private $nrOfLengthOctets;
 
     /**
-     * Must return the number of octets of the content part.
-     *
+     * Must return the number of octets of the content part
      * @return int
      */
     abstract protected function calculateContentLength();
 
     /**
-     * Encode the object using DER encoding.
-     *
+     * Encode the object using DER encoding
      * @see http://en.wikipedia.org/wiki/X.690#DER_encoding
-     *
      * @return string the binary representation of an objects value
      */
     abstract protected function getEncodedValue();
 
     /**
      * Return the content of this object in a non encoded form.
-     * This can be used to print the value in human readable form.
-     *
+     * This can be used to print the value in human readable form
      * @return mixed
      */
     abstract public function getContent();
 
     /**
      * Return the object type octet.
-     * This should use the class constants of Identifier.
-     *
+     * This should use the class constants of Identifier
      * @see Identifier
-     *
      * @return int
      */
     abstract public function getType();
@@ -84,9 +78,8 @@ abstract class Object implements Parsable
      * the long form identifier format, it MUST reimplement this method to
      * return all octets of the identifier.
      *
-     * @throws LogicException If the identifier format is long form
-     *
      * @return string Identifier as a set of octets
+     * @throws LogicException If the identifier format is long form
      */
     public function getIdentifier()
     {
@@ -100,8 +93,7 @@ abstract class Object implements Parsable
     }
 
     /**
-     * Encode this object using DER encoding.
-     *
+     * Encode this object using DER encoding
      * @return string the full binary representation of the complete object
      */
     public function getBinary()
@@ -122,8 +114,8 @@ abstract class Object implements Parsable
             return chr($contentLength);
         } else {
             // the first length octet determines the number subsequent length octets
-            $lengthOctets = chr(0x80 | ($nrOfLengthOctets - 1));
-            for ($shiftLength = 8 * ($nrOfLengthOctets - 2); $shiftLength >= 0; $shiftLength -= 8) {
+            $lengthOctets = chr(0x80 | ($nrOfLengthOctets-1));
+            for ($shiftLength = 8*($nrOfLengthOctets-2); $shiftLength >= 0; $shiftLength -= 8) {
                 $lengthOctets .= chr($contentLength >> $shiftLength);
             }
 
@@ -195,15 +187,13 @@ abstract class Object implements Parsable
     /**
      * @param string $binaryData
      * @param int $offsetIndex
-     *
-     * @throws ParserException
-     *
      * @return \FG\ASN1\Object
+     * @throws ParserException
      */
     public static function fromBinary(&$binaryData, &$offsetIndex = 0)
     {
-        if (strlen($binaryData) <= $offsetIndex) {
-            throw new ParserException('Can not parse binary from data: Offset index larger than input size', $offsetIndex);
+        if (strlen($binaryData) < $offsetIndex) {
+            throw new ParserException("Can not parse binary from data: Offset index larger than input size", $offsetIndex);
         }
 
         $identifierOctet = ord($binaryData[$offsetIndex]);
@@ -265,6 +255,7 @@ abstract class Object implements Parsable
                 if (Identifier::isConstructed($identifierOctet)) {
                     return new UnknownConstructedObject($binaryData, $offsetIndex);
                 } else {
+
                     $identifier = self::parseBinaryIdentifier($binaryData, $offsetIndex);
                     $lengthOfUnknownObject = self::parseContentLength($binaryData, $offsetIndex);
                     $offsetIndex += $lengthOfUnknownObject;
@@ -288,10 +279,6 @@ abstract class Object implements Parsable
 
     protected static function parseBinaryIdentifier($binaryData, &$offsetIndex)
     {
-        if (strlen($binaryData) <= $offsetIndex) {
-            throw new ParserException('Can not parse identifier from data: Offset index larger than input size', $offsetIndex);
-        }
-
         $identifier = $binaryData[$offsetIndex++];
 
         if (Identifier::isLongForm(ord($identifier)) == false) {
@@ -299,9 +286,6 @@ abstract class Object implements Parsable
         }
 
         while (true) {
-            if (strlen($binaryData) <= $offsetIndex) {
-                throw new ParserException('Can not parse identifier (long form) from data: Offset index larger than input size', $offsetIndex);
-            }
             $nextOctet = $binaryData[$offsetIndex++];
             $identifier .= $nextOctet;
 
@@ -316,19 +300,13 @@ abstract class Object implements Parsable
 
     protected static function parseContentLength(&$binaryData, &$offsetIndex, $minimumLength = 0)
     {
-        if (strlen($binaryData) <= $offsetIndex) {
-            throw new ParserException('Can not parse content length from data: Offset index larger than input size', $offsetIndex);
-        }
-
         $contentLength = ord($binaryData[$offsetIndex++]);
+
         if (($contentLength & 0x80) != 0) {
             // bit 8 is set -> this is the long form
             $nrOfLengthOctets = $contentLength & 0x7F;
             $contentLength = 0x00;
             for ($i = 0; $i < $nrOfLengthOctets; $i++) {
-                if (strlen($binaryData) <= $offsetIndex) {
-                    throw new ParserException('Can not parse content length (long form) from data: Offset index larger than input size', $offsetIndex);
-                }
                 $contentLength = ($contentLength << 8) + ord($binaryData[$offsetIndex++]);
             }
         }

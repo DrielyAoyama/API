@@ -24,12 +24,12 @@ use FG\X509\SAN\SubjectAlternativeNames;
 class CertificateExtensions extends Set implements Parsable
 {
     private $innerSequence;
-    private $extensions = [];
+    private $extensions = array();
 
     public function __construct()
     {
         $this->innerSequence = new Sequence();
-        parent::__construct($this->innerSequence);
+        $this->addChild($this->innerSequence);
     }
 
     public function addSubjectAlternativeNames(SubjectAlternativeNames $sans)
@@ -61,7 +61,7 @@ class CertificateExtensions extends Set implements Parsable
         $extensions = Sequence::fromBinary($binaryData, $offsetIndex);
         $tmpOffset += 1 + $extensions->getNumberOfLengthOctets();
 
-        $parsedObject = new self();
+        $parsedObject = new CertificateExtensions();
         foreach ($extensions as $extension) {
             if ($extension->getType() != Identifier::SEQUENCE) {
                 //FIXME wrong offset index
@@ -73,7 +73,7 @@ class CertificateExtensions extends Set implements Parsable
             if (count($children) < 2) {
                 throw new ParserException('Could not parse Certificate Extensions: Needs at least two child elements per extension sequence (object identifier and octet string)', $tmpOffset);
             }
-            /** @var \FG\ASN1\Object $objectIdentifier */
+            /** @var Object $objectIdentifier */
             $objectIdentifier = $children[0];
 
             /** @var OctetString $octetString */

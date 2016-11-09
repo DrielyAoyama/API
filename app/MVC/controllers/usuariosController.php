@@ -49,7 +49,7 @@ class usuariosController extends controller
    {
       if(count($usuario = query("select * from usuarios where client_id='{$client_id}' and client_token='{$client_token}'"))>0)
       {
-         SalvaUsuario(array('client_id'=>$usuario[0]->client_id,'client_token'=>$usuario[0]->client_token,'id'=>$usuario[0]->id,'nome'=>$usuario[0]->nome,'email'=>$usuario[0]->email,'client_id'=>$usuario[0]->client_id,'client_token'=>$usuario[0]->client_token));
+         // SalvaUsuario(array('client_id'=>$usuario[0]->client_id,'client_token'=>$usuario[0]->client_token,'id'=>$usuario[0]->id,'nome'=>$usuario[0]->nome,'email'=>$usuario[0]->email,'client_id'=>$usuario[0]->client_id,'client_token'=>$usuario[0]->client_token));
          return true;
       }
       else

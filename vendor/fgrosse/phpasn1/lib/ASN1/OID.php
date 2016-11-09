@@ -70,9 +70,7 @@ class OID
      *
      * @param string $oidString
      * @param bool $loadFromWeb
-     *
      * @see self::loadFromWeb($oidString)
-     *
      * @return string
      */
     public static function getName($oidString, $loadFromWeb = true)

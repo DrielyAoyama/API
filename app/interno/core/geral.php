@@ -52,9 +52,9 @@ function getInfo($valor,$tabela,$campo=1,$operador='=',$comparador=1)
 		return $row->{$valor};
 }
 
-function registralog($log = "",$algoritmo_desc,$algoritmo_id,$tempo_processamento=0)
+function registralog($log = "",$algoritmo_desc,$algoritmo_id,$tempo_processamento=0,$protocolo)
 {
-	DB::table('log')->insert(['descricao' =>$log,'algoritmo_id'=>$algoritmo_id,'algoritmo_desc'=>$algoritmo_desc,'tempo_processamento'=>$tempo_processamento, 'usuario' => Auth('id'),'created_at'=>date("Y-m-d H:i:s")]);
+	DB::table('log')->insert(['descricao' =>$log,'algoritmo_id'=>$algoritmo_id,'algoritmo_desc'=>$algoritmo_desc,'tempo_processamento'=>$tempo_processamento, 'protocolo' => $protocolo,'created_at'=>date("Y-m-d H:i:s")]);
 }
 
 function asset($diretorio = "",$url = "")

@@ -19,6 +19,7 @@ use FG\ASN1\Universal\Boolean;
 
 class SetTest extends ASN1TestCase
 {
+
     public function testGetType()
     {
         $object = new Set();
@@ -34,11 +35,11 @@ class SetTest extends ASN1TestCase
     public function testContent()
     {
         $child1 = new Integer(123);
-        $child2 = new PrintableString('Hello Wold');
+        $child2 = new PrintableString("Hello Wold");
         $child3 = new Boolean(true);
         $object = new Set($child1, $child2, $child3);
 
-        $this->assertEquals([$child1, $child2, $child3], $object->getContent());
+        $this->assertEquals(array($child1, $child2, $child3), $object->getContent());
     }
 
     public function testGetObjectLength()
@@ -53,7 +54,7 @@ class SetTest extends ASN1TestCase
         $this->assertEquals(8, $object->getObjectLength());
 
         $child1 = new Integer(123);
-        $child2 = new PrintableString('Hello Wold');
+        $child2 = new PrintableString("Hello Wold");
         $child3 = new Boolean(true);
         $object = new Set($child1, $child2, $child3);
         $this->assertEquals(20, $object->getObjectLength());
@@ -83,66 +84,37 @@ class SetTest extends ASN1TestCase
      */
     public function testFromBinary()
     {
-        $originalObject = new Set(
+        $originalobject = new Set(
             new Boolean(true),
             new Integer(1234567)
         );
-        $binaryData = $originalObject->getBinary();
+        $binaryData = $originalobject->getBinary();
         $parsedObject = Set::fromBinary($binaryData);
-        $this->assertEquals($originalObject, $parsedObject);
+        $this->assertEquals($originalobject, $parsedObject);
     }
 
-    /*
+    /**
      * @depends testFromBinary
      */
-
-    public function testFromBinaryWithOffset()
-    {
-        $originalObject1 = new Set(
+/*    public function testFromBinaryWithOffset() {
+        $originalobject1 = new Set(
             new Boolean(true),
             new Integer(123)
         );
-        $originalObject2 = new Set(
+        $originalobject2 = new Set(
             new Integer(64),
             new Boolean(false)
         );
 
-        $binaryData  = $originalObject1->getBinary();
-        $binaryData .= $originalObject2->getBinary();
+        $binaryData  = $originalobject1->getBinary();
+        $binaryData .= $originalobject2->getBinary();
 
         $offset = 0;
         $parsedObject = Set::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject1, $parsedObject);
+        $this->assertEquals($originalobject1, $parsedObject);
         $this->assertEquals(8, $offset);
         $parsedObject = Set::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject2, $parsedObject);
+        $this->assertEquals($originalobject2, $parsedObject);
         $this->assertEquals(16, $offset);
-    }
-
-    public function testSetAsArray()
-    {
-        $object = new Set();
-        $child1 = new Integer(123);
-        $child2 = new PrintableString('Hello Wold');
-        $child3 = new Boolean(true);
-        $child4 = new Integer(1234567);
-
-        $object[] = $child1;
-        $object[] = $child2;
-        $object['foo'] = $child3;
-
-        $this->assertEquals($child1, $object[0]);
-        $this->assertEquals($child2, $object[1]);
-        $this->assertEquals($child3, $object['foo']);
-        $this->assertEquals(3, count($object));
-
-        unset($object[1]);
-        $object['bar'] = $child4;
-
-        $this->assertEquals($child1, $object[0]);
-        $this->assertFalse(isset($object[1]));
-        $this->assertEquals($child3, $object['foo']);
-        $this->assertEquals($child4, $object['bar']);
-        $this->assertEquals(3, count($object));
-    }
+    }*/
 }

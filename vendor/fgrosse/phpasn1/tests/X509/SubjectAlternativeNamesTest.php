@@ -18,6 +18,7 @@ use FG\X509\SAN\SubjectAlternativeNames;
 
 class SubjectAlternativeNamesTest extends ASN1TestCase
 {
+
     public function testGetType()
     {
         $object = new SubjectAlternativeNames();
@@ -35,16 +36,16 @@ class SubjectAlternativeNamesTest extends ASN1TestCase
         $object = new SubjectAlternativeNames();
         $content = $object->getContent();
         $this->assertTrue(is_array($content));
-        $this->assertTrue(count($content) == 0);
+        $this->assertTrue(sizeof($content) == 0);
 
         $dnsName = new DNSName('corvespace.de');
         $object->addDomainName($dnsName);
-        $this->assertTrue(count($object->getContent()) == 1);
+        $this->assertTrue(sizeof($object->getContent()) == 1);
         $this->assertContains($dnsName, $object->getContent());
 
         $ipAddress = new IPAddress('192.168.0.1');
         $object->addIP($ipAddress);
-        $this->assertTrue(count($object->getContent()) == 2);
+        $this->assertTrue(sizeof($object->getContent()) == 2);
         $this->assertContains($ipAddress, $object->getContent());
     }
 
@@ -76,12 +77,12 @@ class SubjectAlternativeNamesTest extends ASN1TestCase
      */
     public function testFromBinary()
     {
-        $originalObject = new SubjectAlternativeNames();
-        $originalObject->addDomainName(new DNSName('corvespace.de'));
-        $originalObject->addIP(new IPAddress('192.168.0.1'));
-        $binaryData = $originalObject->getBinary();
+        $originalobject = new SubjectAlternativeNames();
+        $originalobject->addDomainName(new DNSName('corvespace.de'));
+        $originalobject->addIP(new IPAddress('192.168.0.1'));
+        $binaryData = $originalobject->getBinary();
         $parsedObject = SubjectAlternativeNames::fromBinary($binaryData);
-        $this->assertEquals($originalObject, $parsedObject);
+        $this->assertEquals($originalobject, $parsedObject);
     }
 
     /**
@@ -89,23 +90,23 @@ class SubjectAlternativeNamesTest extends ASN1TestCase
      */
     public function testFromBinaryWithOffset()
     {
-        $originalObject1 = new SubjectAlternativeNames();
-        $originalObject1->addDomainName(new DNSName('corvespace.de'));
-        $originalObject1->addIP(new IPAddress('192.168.0.1'));
-        $originalObject1->addIP(new IPAddress('10.218.0.1'));
+        $originalobject1 = new SubjectAlternativeNames();
+        $originalobject1->addDomainName(new DNSName('corvespace.de'));
+        $originalobject1->addIP(new IPAddress('192.168.0.1'));
+        $originalobject1->addIP(new IPAddress('10.218.0.1'));
 
-        $originalObject2 = new SubjectAlternativeNames();
-        $originalObject2->addDomainName(new DNSName('google.com'));
+        $originalobject2 = new SubjectAlternativeNames();
+        $originalobject2->addDomainName(new DNSName('google.com'));
 
-        $binaryData  = $originalObject1->getBinary();
-        $binaryData .= $originalObject2->getBinary();
+        $binaryData  = $originalobject1->getBinary();
+        $binaryData .= $originalobject2->getBinary();
 
         $offset = 0;
         $parsedObject = SubjectAlternativeNames::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject1, $parsedObject);
+        $this->assertEquals($originalobject1, $parsedObject);
         $this->assertEquals(31, $offset);
         $parsedObject = SubjectAlternativeNames::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject2, $parsedObject);
+        $this->assertEquals($originalobject2, $parsedObject);
         $this->assertEquals(47, $offset);
     }
 }

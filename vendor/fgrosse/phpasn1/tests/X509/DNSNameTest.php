@@ -15,27 +15,28 @@ use FG\X509\SAN\DNSName;
 
 class DNSNameTest extends ASN1TestCase
 {
+
     public function testGetType()
     {
-        $object = new DNSName('test.corvespace.de');
+        $object = new DNSName("test.corvespace.de");
         $this->assertEquals(0x82, $object->getType());
     }
 
     public function testGetIdentifier()
     {
-        $object = new DNSName('test.corvespace.de');
+        $object = new DNSName("test.corvespace.de");
         $this->assertEquals(chr(0x82), $object->getIdentifier());
     }
 
     public function testGetContent()
     {
-        $object = new DNSName('test.corvespace.de');
-        $this->assertEquals('test.corvespace.de', $object->getContent());
+        $object = new DNSName("test.corvespace.de");
+        $this->assertEquals("test.corvespace.de", $object->getContent());
     }
 
     public function testGetObjectLength()
     {
-        $string = 'test.corvespace.de';
+        $string = "test.corvespace.de";
         $object = new DNSName($string);
         $expectedSize = 2 + strlen($string);
         $this->assertEquals($expectedSize, $object->getObjectLength());
@@ -43,7 +44,7 @@ class DNSNameTest extends ASN1TestCase
 
     public function testGetBinary()
     {
-        $string = 'test.corvespace.de';
+        $string = "test.corvespace.de";
         $expectedType = chr(0x82);
         $expectedLength = chr(strlen($string));
 
@@ -56,10 +57,10 @@ class DNSNameTest extends ASN1TestCase
      */
     public function testFromBinary()
     {
-        $originalObject = new DNSName('test.corvespace.de');
-        $binaryData = $originalObject->getBinary();
+        $originalobject = new DNSName("test.corvespace.de");
+        $binaryData = $originalobject->getBinary();
         $parsedObject = DNSName::fromBinary($binaryData);
-        $this->assertEquals($originalObject, $parsedObject);
+        $this->assertEquals($originalobject, $parsedObject);
     }
 
     /**
@@ -67,18 +68,18 @@ class DNSNameTest extends ASN1TestCase
      */
     public function testFromBinaryWithOffset()
     {
-        $originalObject1 = new DNSName('test.corvespace.de');
-        $originalObject2 = new DNSName('superdomain.com');
+        $originalobject1 = new DNSName("test.corvespace.de");
+        $originalobject2 = new DNSName("superdomain.com");
 
-        $binaryData  = $originalObject1->getBinary();
-        $binaryData .= $originalObject2->getBinary();
+        $binaryData  = $originalobject1->getBinary();
+        $binaryData .= $originalobject2->getBinary();
 
         $offset = 0;
         $parsedObject = DNSName::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject1, $parsedObject);
+        $this->assertEquals($originalobject1, $parsedObject);
         $this->assertEquals(20, $offset);
         $parsedObject = DNSName::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject2, $parsedObject);
+        $this->assertEquals($originalobject2, $parsedObject);
         $this->assertEquals(37, $offset);
     }
 }

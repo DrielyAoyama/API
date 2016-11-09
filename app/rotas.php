@@ -7,7 +7,9 @@ function rotas_liberadas()
 			_route("usuariosController@getLogin"),
 			_route("usuariosController@postLogar"),
 
-			_route("principalController@getCodificar")
+			_route("principalController@getCodificar"),
+			_route("principalController@getTestar"),
+			_route("testesController@getTestar")
 
 		);
 	return $rotas_liberadas;

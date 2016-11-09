@@ -16,33 +16,34 @@ use FG\ASN1\Universal\VisibleString;
 
 class VisibleStringTest extends ASN1TestCase
 {
+
     public function testGetType()
     {
-        $object = new VisibleString('Hello World');
+        $object = new VisibleString("Hello World");
         $this->assertEquals(Identifier::VISIBLE_STRING, $object->getType());
     }
 
     public function testGetIdentifier()
     {
-        $object = new VisibleString('Hello World');
+        $object = new VisibleString("Hello World");
         $this->assertEquals(chr(Identifier::VISIBLE_STRING), $object->getIdentifier());
     }
 
     public function testContent()
     {
-        $object = new VisibleString('Hello World');
-        $this->assertEquals('Hello World', $object->getContent());
+        $object = new VisibleString("Hello World");
+        $this->assertEquals("Hello World", $object->getContent());
 
-        $object = new VisibleString('');
-        $this->assertEquals('', $object->getContent());
+        $object = new VisibleString("");
+        $this->assertEquals("", $object->getContent());
 
-        $object = new VisibleString('             ');
-        $this->assertEquals('             ', $object->getContent());
+        $object = new VisibleString("             ");
+        $this->assertEquals("             ", $object->getContent());
     }
 
     public function testGetObjectLength()
     {
-        $string = 'Hello World';
+        $string = "Hello World";
         $object = new VisibleString($string);
         $expectedSize = 2 + strlen($string);
         $this->assertEquals($expectedSize, $object->getObjectLength());
@@ -50,7 +51,7 @@ class VisibleStringTest extends ASN1TestCase
 
     public function testGetBinary()
     {
-        $string = 'Hello World';
+        $string = "Hello World";
         $expectedType = chr(Identifier::VISIBLE_STRING);
         $expectedLength = chr(strlen($string));
 
@@ -63,10 +64,10 @@ class VisibleStringTest extends ASN1TestCase
      */
     public function testFromBinary()
     {
-        $originalObject = new VisibleString('Hello World');
-        $binaryData = $originalObject->getBinary();
+        $originalobject = new VisibleString("Hello World");
+        $binaryData = $originalobject->getBinary();
         $parsedObject = VisibleString::fromBinary($binaryData);
-        $this->assertEquals($originalObject, $parsedObject);
+        $this->assertEquals($originalobject, $parsedObject);
     }
 
     /**
@@ -74,18 +75,18 @@ class VisibleStringTest extends ASN1TestCase
      */
     public function testFromBinaryWithOffset()
     {
-        $originalObject1 = new VisibleString('Hello ');
-        $originalObject2 = new VisibleString(' World');
+        $originalobject1 = new VisibleString("Hello ");
+        $originalobject2 = new VisibleString(" World");
 
-        $binaryData  = $originalObject1->getBinary();
-        $binaryData .= $originalObject2->getBinary();
+        $binaryData  = $originalobject1->getBinary();
+        $binaryData .= $originalobject2->getBinary();
 
         $offset = 0;
         $parsedObject = VisibleString::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject1, $parsedObject);
+        $this->assertEquals($originalobject1, $parsedObject);
         $this->assertEquals(8, $offset);
         $parsedObject = VisibleString::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject2, $parsedObject);
+        $this->assertEquals($originalobject2, $parsedObject);
         $this->assertEquals(16, $offset);
     }
 }

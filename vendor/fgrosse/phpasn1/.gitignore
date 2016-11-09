@@ -7,5 +7,6 @@
 # Composer
 vendor
 
-# Test coverage reports
-clover.xml
+classes/cache/*
+tmp/*
+vendor/

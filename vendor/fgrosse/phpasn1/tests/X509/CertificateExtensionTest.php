@@ -21,6 +21,7 @@ use FG\X509\SAN\SubjectAlternativeNames;
 
 class CertificateExtensionTest extends ASN1TestCase
 {
+
     public function testGetType()
     {
         $object = new CertificateExtensions();
@@ -38,13 +39,13 @@ class CertificateExtensionTest extends ASN1TestCase
         $object = new CertificateExtensions();
         $content = $object->getContent();
         $this->assertTrue(is_array($content));
-        $this->assertTrue(count($content) == 0);
+        $this->assertTrue(sizeof($content) == 0);
 
         $sans = new SubjectAlternativeNames();
         $sans->addDomainName(new DNSName('corvespace.de'));
 
         $object->addSubjectAlternativeNames($sans);
-        $this->assertTrue(count($object->getContent()) == 1);
+        $this->assertTrue(sizeof($object->getContent()) == 1);
         $this->assertContains($sans, $object->getContent());
     }
 
@@ -85,15 +86,15 @@ class CertificateExtensionTest extends ASN1TestCase
      */
     public function testFromBinary()
     {
-        $originalObject = new CertificateExtensions();
+        $originalobject = new CertificateExtensions();
         $sans = new SubjectAlternativeNames();
         $sans->addDomainName(new DNSName('corvespace.de'));
         $sans->addIP(new IPAddress('192.168.0.1'));
-        $originalObject->addSubjectAlternativeNames($sans);
+        $originalobject->addSubjectAlternativeNames($sans);
 
-        $binaryData = $originalObject->getBinary();
+        $binaryData = $originalobject->getBinary();
         $parsedObject = CertificateExtensions::fromBinary($binaryData);
-        $this->assertEquals($originalObject, $parsedObject);
+        $this->assertEquals($originalobject, $parsedObject);
     }
 
     /**
@@ -103,27 +104,27 @@ class CertificateExtensionTest extends ASN1TestCase
     {
         $objectIdentifier = new ObjectIdentifier(OID::CERT_EXT_SUBJECT_ALT_NAME);
 
-        $originalObject1 = new CertificateExtensions();
+        $originalobject1 = new CertificateExtensions();
         $sans1 = new SubjectAlternativeNames();
         $sans1->addDomainName(new DNSName('corvespace.de'));
         $sans1->addIP(new IPAddress('192.168.0.1'));
-        $originalObject1->addSubjectAlternativeNames($sans1);
+        $originalobject1->addSubjectAlternativeNames($sans1);
 
-        $originalObject2 = new CertificateExtensions();
+        $originalobject2 = new CertificateExtensions();
         $sans2 = new SubjectAlternativeNames();
         $sans2->addDomainName(new DNSName('google.com'));
-        $originalObject2->addSubjectAlternativeNames($sans2);
+        $originalobject2->addSubjectAlternativeNames($sans2);
 
-        $binaryData  = $originalObject1->getBinary();
-        $binaryData .= $originalObject2->getBinary();
+        $binaryData  = $originalobject1->getBinary();
+        $binaryData .= $originalobject2->getBinary();
 
         $offset = 0;
         $parsedObject = CertificateExtensions::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject1, $parsedObject);
+        $this->assertEquals($originalobject1, $parsedObject);
         $offsetAfterFirstObject = $sans1->getObjectLength() + $objectIdentifier->getObjectLength() + 2  + 2 + 2;
         $this->assertEquals($offsetAfterFirstObject, $offset);
         $parsedObject = CertificateExtensions::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject2, $parsedObject);
+        $this->assertEquals($originalobject2, $parsedObject);
         $this->assertEquals($offsetAfterFirstObject + $sans2->getObjectLength() + $objectIdentifier->getObjectLength() + 2  + 2 + 2, $offset);
     }
 }

@@ -10,68 +10,60 @@
 
 namespace FG\Test\X509;
 
-use FG\ASN1\OID;
-use FG\ASN1\Universal\ObjectIdentifier;
 use FG\Test\ASN1TestCase;
 use FG\ASN1\Identifier;
-use FG\X509\CertificateExtensions;
 use FG\X509\CertificateSubject;
-use FG\X509\SAN\DNSName;
-use FG\X509\SAN\IPAddress;
-use FG\X509\SAN\SubjectAlternativeNames;
 
 class CertificateSubjectTest extends ASN1TestCase
 {
+
     public function testGetType()
     {
-        $object = new CertificateSubject('Friedrich Große', 'friedrich.grosse@foo.de', 'Organization', 'Locality', 'State', 'Country', 'OrgaUnit');
+        $object = new CertificateSubject("Friedrich Große", "friedrich.grosse@foo.de", "Organization", "Locality", "State", "Country", "OrgaUnit");
         $this->assertEquals(Identifier::SEQUENCE, $object->getType());
     }
 
     public function testGetIdentifier()
     {
-        $object = new CertificateSubject('Friedrich Große', 'friedrich.grosse@foo.de', 'Organization', 'Locality', 'State', 'Country', 'OrgaUnit');
+        $object = new CertificateSubject("Friedrich Große", "friedrich.grosse@foo.de", "Organization", "Locality", "State", "Country", "OrgaUnit");
         $this->assertEquals(chr(Identifier::SEQUENCE), $object->getIdentifier());
     }
+    /*
+    public function testFromBinary() {
+        $originalobject = new CertificateSubject("Friedrich Große", "friedrich.grosse@foo.de", "Organization", "Locality", "State", "Country", "OrgaUnit");
 
-    public function testFromBinary()
-    {
-        $this->markTestIncomplete('Not implemented');
-        $originalObject = new CertificateSubject('Friedrich Große', 'friedrich.grosse@foo.de', 'Organization', 'Locality', 'State', 'Country', 'OrgaUnit');
-
-        $binaryData = $originalObject->getBinary();
+        $binaryData = $originalobject->getBinary();
         $parsedObject = CertificateSubject::fromBinary($binaryData);
-        $this->assertEquals($originalObject, $parsedObject);
+        $this->assertEquals($originalobject, $parsedObject);
     }
 
     /**
      * @depends testFromBinary
      */
-    public function testFromBinaryWithOffset()
-    {
-        $objectIdentifier = new ObjectIdentifier(OID::CERT_EXT_SUBJECT_ALT_NAME);
+    /*public function testFromBinaryWithOffset() {
+        $objectIdentifier = new ASN_ObjectIdentifier(OID::CERT_EXT_SUBJECT_ALT_NAME);
 
-        $originalObject1 = new CertificateExtensions();
+        $originalobject1 = new CertificateExtensions();
         $sans1 = new SubjectAlternativeNames();
-        $sans1->addDomainName(new DNSName('corvespace.de'));
-        $sans1->addIP(new IPAddress('192.168.0.1'));
-        $originalObject1->addSubjectAlternativeNames($sans1);
+        $sans1->addDomainName(new SAN_DNSName('corvespace.de'));
+        $sans1->addIP(new SAN_IPAddress('192.168.0.1'));
+        $originalobject1->addSubjectAlternativeNames($sans1);
 
-        $originalObject2 = new CertificateExtensions();
+        $originalobject2 = new CertificateExtensions();
         $sans2 = new SubjectAlternativeNames();
-        $sans2->addDomainName(new DNSName('google.com'));
-        $originalObject2->addSubjectAlternativeNames($sans2);
+        $sans2->addDomainName(new SAN_DNSName('google.com'));
+        $originalobject2->addSubjectAlternativeNames($sans2);
 
-        $binaryData  = $originalObject1->getBinary();
-        $binaryData .= $originalObject2->getBinary();
+        $binaryData  = $originalobject1->getBinary();
+        $binaryData .= $originalobject2->getBinary();
 
         $offset = 0;
         $parsedObject = CertificateExtensions::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject1, $parsedObject);
+        $this->assertEquals($originalobject1, $parsedObject);
         $offsetAfterFirstObject = $sans1->getObjectLength() + $objectIdentifier->getObjectLength() + 2  + 2 + 2;
         $this->assertEquals($offsetAfterFirstObject, $offset);
         $parsedObject = CertificateExtensions::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject2, $parsedObject);
+        $this->assertEquals($originalobject2, $parsedObject);
         $this->assertEquals($offsetAfterFirstObject + $sans2->getObjectLength() + $objectIdentifier->getObjectLength() + 2  + 2 + 2, $offset);
-    }
+    }*/
 }

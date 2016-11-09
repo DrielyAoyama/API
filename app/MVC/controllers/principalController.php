@@ -43,8 +43,13 @@ class principalController extends controller
 	}	
 
 
-
+   public function getTestar()
+   {
+     echo  json_encode('testes');
+   }
    
+  
+
    public function getCodificar($JSON)
    {
       try
@@ -84,38 +89,64 @@ class principalController extends controller
 
             $criptografado = $this->algoritmosController->Criptografar($algoritmo_selecionado,$request->texto);
 
-         
             try 
             {
                $app = new AppSec();
-               // $app->response()->header('Content-Type', 'application/json;charset=utf-8');
-               
+               $app->response()->header('Content-Type', 'application/json;charset=utf-8');
+               // retornar chave do processamento
                $app->get("/",
                               function($criptografado)
                               {
-                                 $INFOS = [
-                                             "algoritmo"=>$criptografado['algoritmo'],
-                                             "tempo_processamento"=>$criptografado['tempo_processamento']
-                                          ];
                                  $REPOSTAS = [  "criptografado"=>utf8_encode($criptografado['codificado'])  ];
-                                 return json_encode(["INFOS"=>$INFOS,"REPOSTAS"=>$REPOSTAS]);
+                                 return json_encode(["mensagem"=>utf8_encode($criptografado['codificado']),"protocolo"=>$criptografado['protocolo']  ]);
                               },
                               ['criptografado'=>$criptografado]
                         );
-
-              $app->run();
+               // :apiresponse
+               echo $app->run();
             } 
             catch (Exception $e) 
             {
                 echo json_encode($e,JSON_UNESCAPED_UNICODE);
             }        
          }
-         LimpaUsuario();
+         // $this->sair();
       }
       catch (Exception $erro) 
       {
          echo json_response(200, "ERRO - EXCEPTION ".$erro);
       }
+   }
+
+   private function sair()
+   {
+      LimpaUsuario();
+   }
+
+   private function GerarChaveAleatoria($tamanho = 8, $maiusculas = true, $numeros = true, $simbolos = false)
+   {
+           // Caracteres de cada tipo
+      $lmin = 'abcdefghijklmnopqrstuvwxyz';
+      $lmai = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+      $num = '1234567890';
+      $simb = '!@#$%*-';
+      // Variáveis internas
+      $retorno = '';
+      $caracteres = '';
+      // Agrupamos todos os caracteres que poderão ser utilizados
+      $caracteres .= $lmin;
+      if ($maiusculas) $caracteres .= $lmai;
+      if ($numeros) $caracteres .= $num;
+      if ($simbolos) $caracteres .= $simb;
+      // Calculamos o total de caracteres possíveis
+      $len = strlen($caracteres);
+      for ($n = 1; $n <= $tamanho; $n++) {
+      // Criamos um número aleatório de 1 até $len para pegar um dos caracteres
+      $rand = mt_rand(1, $len);
+      // Concatenamos um dos caracteres na variável $retorno
+      $retorno .= $caracteres[$rand-1];
+      }
+      return $retorno;
    }
 
 

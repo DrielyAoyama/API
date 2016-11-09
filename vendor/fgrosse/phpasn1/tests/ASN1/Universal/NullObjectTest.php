@@ -16,6 +16,7 @@ use FG\ASN1\Universal\NullObject;
 
 class NullObjectTest extends ASN1TestCase
 {
+
     public function testGetType()
     {
         $object = new NullObject();
@@ -53,10 +54,10 @@ class NullObjectTest extends ASN1TestCase
      */
     public function testFromBinary()
     {
-        $originalObject = new NullObject();
-        $binaryData = $originalObject->getBinary();
+        $originalobject = new NullObject();
+        $binaryData = $originalobject->getBinary();
         $parsedObject = NullObject::fromBinary($binaryData);
-        $this->assertEquals($originalObject, $parsedObject);
+        $this->assertEquals($originalobject, $parsedObject);
     }
 
     /**
@@ -64,18 +65,18 @@ class NullObjectTest extends ASN1TestCase
      */
     public function testFromBinaryWithOffset()
     {
-        $originalObject1 = new NullObject();
-        $originalObject2 = new NullObject();
+        $originalobject1 = new NullObject();
+        $originalobject2 = new NullObject();
 
-        $binaryData  = $originalObject1->getBinary();
-        $binaryData .= $originalObject2->getBinary();
+        $binaryData  = $originalobject1->getBinary();
+        $binaryData .= $originalobject2->getBinary();
 
         $offset = 0;
         $parsedObject = NullObject::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject1, $parsedObject);
+        $this->assertEquals($originalobject1, $parsedObject);
         $this->assertEquals(2, $offset);
         $parsedObject = NullObject::fromBinary($binaryData, $offset);
-        $this->assertEquals($originalObject2, $parsedObject);
+        $this->assertEquals($originalobject2, $parsedObject);
         $this->assertEquals(4, $offset);
     }
 

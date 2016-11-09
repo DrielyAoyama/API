@@ -73,24 +73,13 @@
 			}
 		}
 
-		public function run($echo = true)
+		public function run()
 		{
 			header($this->getHeader('Content-Type'));
-			if($echo)
-			{
-				if($this->function)
-					echo call_user_func_array($this->method,$this->args);	
-				else
-					echo call_user_func_array([$this->controller,$this->method],$this->args);
-				return true;
-			}
+			if($this->function)
+				return call_user_func_array($this->method,$this->args);	
 			else
-			{
-				if($this->function)
-					return call_user_func_array($this->method,$this->args);	
-				else
-					return call_user_func_array([$this->controller,$this->method],$this->args);
-			}
+				return call_user_func_array([$this->controller,$this->method],$this->args);
 		}
 		
 		
