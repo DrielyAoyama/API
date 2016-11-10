@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: 09-Nov-2016 às 20:23
+-- Generation Time: 10-Nov-2016 às 19:11
 -- Versão do servidor: 10.1.16-MariaDB
 -- PHP Version: 5.6.24
 
@@ -50,12 +50,12 @@ INSERT INTO `algoritmos` (`id`, `nome`, `media_tempo_processamento`, `qtde_execu
 (5, '3DES', 0.000781217, 3, 'TEXTO', 'SIMETRICO', 'S', '2016-10-26 11:58:31', NULL),
 (6, 'RSA', 17.8452, 0, 'TEXTO', 'ASSIMETRICA', 'S', '2016-08-29 23:50:36', NULL),
 (7, 'ECC', 0.412727, 7, 'TEXTO', 'ASSIMETRICA', 'S', '2016-11-09 13:20:23', NULL),
-(8, 'SHA1', 0.0000240008, 67, 'TEXTO', 'HASH', 'N', '2016-11-09 19:21:25', NULL),
+(8, 'SHA1', 0.0000240008, 72, 'TEXTO', 'HASH', 'N', '2016-11-10 16:19:10', NULL),
 (9, 'SHA256', 0.00000214577, 0, 'TEXTO', 'HASH', 'N', '2016-08-29 23:50:36', NULL),
 (10, 'SHA512', 0.00000214577, 0, 'TEXTO', 'HASH', 'N', '2016-08-29 23:50:36', NULL),
 (11, 'SIMON', 0.00112915, 0, 'ARRAY', 'LEVE', 'S', '2016-08-29 23:47:28', NULL),
-(12, 'SPECK', 0.00362611, 1, 'ARRAY', 'LEVE', 'N', '2016-11-04 12:52:30', NULL),
-(13, 'DES', 0.000636721, 30, 'TEXTO', 'ASSIMETRICA', 'S', '2016-11-03 19:38:59', NULL),
+(12, 'SPECK', 0.00362611, 2, 'ARRAY', 'LEVE', 'N', '2016-11-10 17:22:37', NULL),
+(13, 'DES', 0.000636721, 38, 'TEXTO', 'ASSIMETRICA', 'S', '2016-11-10 18:07:06', NULL),
 (14, 'SIMECK', 0.00089407, 1, 'TEXTO', 'ASSIMETRICA', 'S', '2016-11-04 12:52:47', NULL);
 
 -- --------------------------------------------------------
@@ -234,6 +234,7 @@ INSERT INTO `niveis` (`id`, `id_algoritmo`, `algoritmo`, `ano_criacao`, `ataques
 
 CREATE TABLE `pesos` (
   `id` int(11) NOT NULL,
+  `id_algoritmo` int(11) NOT NULL,
   `nome_algoritmo` varchar(100) DEFAULT NULL,
   `_1` double DEFAULT '0',
   `_2` double DEFAULT '0',
@@ -248,21 +249,21 @@ CREATE TABLE `pesos` (
 -- Extraindo dados da tabela `pesos`
 --
 
-INSERT INTO `pesos` (`id`, `nome_algoritmo`, `_1`, `_2`, `_3`, `_4`, `_5`, `_6`, `_7`) VALUES
-(1, 'AES_128_BITS', 1, 1, 2, 3, 4, 5, 5),
-(2, 'AES_192_BITS', 1, 2, 3, 4, 5, 6, 6),
-(3, 'AES_256_BITS', 1, 2, 3, 4, 6, 7, 7),
-(4, 'MD5', 1, 1, 1, 1, 1, 1, 1),
-(5, '3DES', 1, 1, 2, 2, 3, 4, 4),
-(6, 'RSA', 5, 7, 7, 7, 7, 7, 7),
-(7, 'ECC', 7, 7, 7, 7, 7, 7, 7),
-(8, 'SHA1', 1, 1, 1, 1, 1, 1, 1),
-(9, 'SHA256', 1, 1, 1, 1, 1, 1, 1),
-(10, 'SHA512', 1, 1, 1, 1, 1, 1, 1),
-(11, 'SIMON', 1, 1, 1, 2, 2, 2, 2),
-(12, 'SPECK', 1, 1, 1, 1, 2, 2, 2),
-(13, 'DES', 1, 1, 2, 2, 3, 3, 3),
-(14, 'SIMECK', 1, 1, 1, 1, 1, 1, 1);
+INSERT INTO `pesos` (`id`, `id_algoritmo`, `nome_algoritmo`, `_1`, `_2`, `_3`, `_4`, `_5`, `_6`, `_7`) VALUES
+(1, 1, 'AES_128_BITS', 1, 1, 2, 3, 4, 5, 5),
+(2, 2, 'AES_192_BITS', 1, 2, 3, 4, 5, 6, 6),
+(3, 3, 'AES_256_BITS', 1, 2, 3, 4, 6, 7, 7),
+(4, 4, 'MD5', 1, 1, 1, 1, 1, 1, 1),
+(5, 5, '3DES', 1, 1, 2, 2, 3, 4, 4),
+(6, 6, 'RSA', 5, 7, 7, 7, 7, 7, 7),
+(7, 7, 'ECC', 7, 7, 7, 7, 7, 7, 7),
+(8, 8, 'SHA1', 1, 1, 1, 1, 1, 1, 1),
+(9, 9, 'SHA256', 1, 1, 1, 1, 1, 1, 1),
+(10, 10, 'SHA512', 1, 1, 1, 1, 1, 1, 1),
+(11, 11, 'SIMON', 1, 1, 1, 2, 2, 2, 2),
+(12, 12, 'SPECK', 1, 1, 1, 1, 2, 2, 2),
+(13, 13, 'DES', 1, 1, 2, 2, 3, 3, 3),
+(14, 14, 'SIMECK', 1, 1, 1, 1, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -272,7 +273,7 @@ INSERT INTO `pesos` (`id`, `nome_algoritmo`, `_1`, `_2`, `_3`, `_4`, `_5`, `_6`,
 
 CREATE TABLE `protocolos` (
   `protocolo` varchar(100) NOT NULL,
-  `chave` longtext NOT NULL,
+  `chave_privada` longtext NOT NULL,
   `algoritmo` int(11) NOT NULL,
   `tempo_processamento` float NOT NULL,
   `origem` longtext NOT NULL,
@@ -283,9 +284,10 @@ CREATE TABLE `protocolos` (
 -- Extraindo dados da tabela `protocolos`
 --
 
-INSERT INTO `protocolos` (`protocolo`, `chave`, `algoritmo`, `tempo_processamento`, `origem`, `client_id`) VALUES
-('059632aa82b3e570439f343634df82044362808d', '20a0c2cc037d33b37a416caadd332c1f', 8, 0.00159311, 'EsPStTmMVoQ3HIDBk9WDe1UFx5MyR1ljC142PUUlhyY=', 'e8dcdfd79e471bb794e80fcc056d876752fcc8c6'),
-('d7dde7733133469a00faa50dd8ba165518c75b1c', '20a0c2cc037d33b37a416caadd332c1f', 8, 0.00135612, 'EsPStTmMVoQ3HIDBk9WDe1UFx5MyR1ljC142PUUlhyY=', 'e8dcdfd79e471bb794e80fcc056d876752fcc8c6');
+INSERT INTO `protocolos` (`protocolo`, `chave_privada`, `algoritmo`, `tempo_processamento`, `origem`, `client_id`) VALUES
+('a4984c4c5efc37953340930d7c1b85d8544fd5cf', '0209b38f80a2153dd17492042c425728f59a58ad', 13, 0.00205493, 'EST6MyCO88xfy086g70y7pGSgmTgg+2oubnL1rJQxg0=', 'e8dcdfd79e471bb794e80fcc056d876752fcc8c6'),
+('a66b0850835aebb2e86c371e5289b13a59f42820', '399db3463eb0aea018d167fdc3edabc130b6bf60', 13, 0.00180006, '6u0/s2YgqirAkj/ZoQwBQ0CSDVokViDPT1v+7lYsqKo=', 'e8dcdfd79e471bb794e80fcc056d876752fcc8c6'),
+('e872a10e93e7e1c4191b7aadfd9336331daebd3f', 'd9c0b682327db8445942c30741c58217239a18a4', 13, 0.00200415, 'Ffd1ilOirJknoxIPV3ablpgmYwDvmcZaot9OlDS2Fr4=', 'e8dcdfd79e471bb794e80fcc056d876752fcc8c6');
 
 -- --------------------------------------------------------
 

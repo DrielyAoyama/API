@@ -54,27 +54,9 @@ class parametrosController extends controller
 
    public function ConfiguracaoDinamicaAmbiente($request)
    {
-      if(isset($request->tempo_processamento))
-         define("DINAMICO__PESO_TEMPO",$request->tempo_processamento);
-      else
-         define("DINAMICO__PESO_TEMPO",null);
-         
-      if(isset($request->nivel))
-         define("DINAMICO__NIVEL",$request->nivel);
-      else
-         define("DINAMICO__NIVEL",null);
-      // if(isset($request->decodificavel))
-      //    define("DINAMICO__DECODIFICAVEL",$request->decodificavel);
-      // else
-      //    define("DINAMICO__DECODIFICAVEL",null);
-
-      if(isset($request->tamanho))
-         define("DINAMICO__PESO",$request->tamanho);
-      else
-         define("DINAMICO__PESO",null);
-
-
-      // definir tamanho medio do arquivo
+      define("TAMANHO",$request->tamanho);
+      define("TEMPO_PROCESSAMENTO",$request->tempo_processamento);
+      define("NIVEL",$request->nivel);
    }
 
    public function DefinePesoTamanho($texto)

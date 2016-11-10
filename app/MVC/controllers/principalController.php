@@ -57,9 +57,9 @@ class principalController extends controller
                         "client_id":"e8dcdfd79e471bb794e80fcc056d876752fcc8c6",
                         "client_token":"9fa41145a075ee591b8d07cafd0e9fac5384eb08",
                         "texto":"Driely da Silva Aoyama",
-                        "tamanho":1,
+                        "tamanho":4,
                         "nivel":3,
-                        "tempo_processamento":1
+                        "tempo_processamento":2
                       }');
       $Api_Request = new AppSec();
       $retorno = $Api_Request->post()
@@ -75,8 +75,8 @@ class principalController extends controller
                      '{
                         "client_id":"e8dcdfd79e471bb794e80fcc056d876752fcc8c6",
                         "client_token":"9fa41145a075ee591b8d07cafd0e9fac5384eb08",
-                        "mensagem":"820a0c2cc037d33b37a416caadd332c1f58c9795",
-                        "protocolo":"059632aa82b3e570439f343634df82044362808d"
+                        "mensagem":"33c38d43c3bb307118487dc2806c4904c284c2a433c29a776332c3ad161ac285",
+                        "protocolo":"a4984c4c5efc37953340930d7c1b85d8544fd5cf"
                      }');
       $Api_Request = new AppSec();
       $retorno = $Api_Request->post()
@@ -93,7 +93,7 @@ class principalController extends controller
          // echo urldecode(  $JSON );exit();
          // recebe como parameto um JSON com todos os dados da requisicao
          // e o converte em um objeto para utiliza-lo
-         $request = (object) json_decode(urldecode($JSON));
+         $request = (object) json_decode($JSON);
 
          // verifica se a chave fornecida pelo cliente é valida, se sim ele guardará na sessão
          // os dados deste cliente para utiliza-las futuramente

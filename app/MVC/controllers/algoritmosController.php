@@ -33,8 +33,11 @@ class algoritmosController extends controller
    public function desCriptografar($protocolo,$mensagem)
    {
       $row_protocolo = query("select * from protocolos where protocolo='{$protocolo}'",false);
-      $chave = pack('H*',$row_protocolo->chave);
-      return (openssl_decrypt(base64_decode($row_protocolo->origem), 'aes-256-cbc', $chave, OPENSSL_RAW_DATA, $chave));
+      $privada       = pack('H*', $this->pad_string($row_protocolo->chave_privada,32));
+      $publica       = pack('H*', $this->pad_string($protocolo,32));
+      $privada2      = pack('H*', $this->pad_string($mensagem,32));
+
+      return (openssl_decrypt(base64_decode($row_protocolo->origem), 'aes-256-cbc', $publica.$privada2.PHP_EOL, OPENSSL_RAW_DATA, $privada));
    }
 
 
@@ -56,7 +59,7 @@ class algoritmosController extends controller
          $criptografado = call_user_func_array(array("algoritmosController","CRIPTOGRAFAR_".$algoritmo_escolhido->nome), array($texto,$id_alg));
          $tempo = endExec();
          $algoritmo = DB::table('algoritmos')->find($id_alg)->nome; 
-         $this->registraprotocolo($texto,$criptografado,$protocolo=$this->criar_protocolo(),endExec(),$id_alg,$id_usuario);
+         $criptografado = $this->registraprotocolo($texto,$criptografado,$protocolo=$this->criar_protocolo(),endExec(),$id_alg,$id_usuario);
          $this->IncrementarQtdeExecucoes($id_alg);
          return ['codificado'=>$criptografado,'protocolo'=>$protocolo];
       }
@@ -78,14 +81,27 @@ class algoritmosController extends controller
 
    private function registraprotocolo($texto,$criptografado,$protocolo,$tempo,$id_alg,$id_usuario)
    {
-      $chave = pack('H*', $chave_publica = $this->pad_string($criptografado,32));
-      $origem = base64_encode(openssl_encrypt($texto, 'aes-256-cbc', $chave, OPENSSL_RAW_DATA, $chave));
+      $novo = false;
+      while(!$novo):
+         $chave_privada = $this->GerarChaveAleatoria(30,true,true,true);          
+         $chave_privada = sha1(md5($protocolo));
+         $result = query("select * from protocolos where protocolo='{$chave_privada}'");
+         if(count($result)<=0)
+            $novo=true;
+      endwhile;
+
+      $privada     = pack('H*', $this->pad_string($chave_privada,32));
+      $publica     = pack('H*', $this->pad_string($protocolo,32));
+      $privada2    = pack('H*', $this->pad_string($criptografado = bin2hex($criptografado),32));
+
+      $origem = base64_encode(openssl_encrypt($texto, 'aes-256-cbc', $publica.$privada2.PHP_EOL, OPENSSL_RAW_DATA, $privada));
       DB::table('protocolos')->insert(['protocolo' =>$protocolo,
-                                       'chave'=>$chave_publica,
+                                       'chave_privada'=>$chave_privada,
                                        'tempo_processamento' => $tempo,
                                        'algoritmo' => $id_alg,
                                        'client_id' => $id_usuario,
                                        "origem"=>$origem]);
+      return $criptografado;
    }
 
    public function SelecionarAlgoritmo($auto_selecao=true,$nome_algoritmo="")
@@ -94,80 +110,38 @@ class algoritmosController extends controller
       $sql = "";
       $achou = true;
       $array_algoritmos_encontrados = array();
-      // echo DINAMICO__PESO_TAMANHO;exit();
       if($auto_selecao)
       {
-         //parametros fixos
+         $resultado = query("select id_algoritmo from pesos where _".TAMANHO."=".TEMPO_PROCESSAMENTO);
+         $algoritmos_selecionados = $this->getSelecionados($resultado,'id_algoritmo');
+       
+         $resultado = DB::table('niveis')
+            ->wherein('id_algoritmo',$algoritmos_selecionados)
+               ->where('nivel','=',NIVEL)
+                  ->get();
 
-         $pesos = query("select nome_algoritmo from pesos where _".DINAMICO__PESO_TAMANHO."=".DINAMICO__PESO);
-         if(count($pesos)<=0)
-            $achou=false;
-         else
-            $achou=true;
-
-
-         $contador = 1;
-         while (!$achou) 
-         {
-            $pesos = query("select nome_algoritmo from pesos where _".DINAMICO__PESO_TAMANHO."=".(DINAMICO__PESO-$contador));
-            if(count($pesos)<=0)
-               $achou=false;
-            else
-               $achou=true;
-            $contador++;            
-         }
-
-
-
-
-         foreach ($pesos as $alg):
-            array_push($array_algoritmos_encontrados, $alg->nome_algoritmo);
-         endforeach;
-
-
-
-         $algoritmos = $this->model->join('niveis','niveis.id_algoritmo','=','algoritmos.id')
-               ->select('algoritmos.*')
-                  // ->where('algoritmos.decodificavel','=',DINAMICO__DECODIFICAVEL)
-                     ->whereIn('algoritmos.nome',$array_algoritmos_encontrados)
-                        ->where('niveis.nivel','=',DINAMICO__NIVEL)
-                           ->orderby('niveis.nivel')
-                              ->get();
-
-         if(count($algoritmos)<=0)
-            $achou=false;
-         else
-            $achou=true;
-
-         $contador = 1;
-         while (!$achou) 
-         {
-            $algoritmos = $this->model->join('niveis','niveis.id_algoritmo','=','algoritmos.id')
-               ->select('algoritmos.*')
-                  // ->where('algoritmos.decodificavel','=',DINAMICO__DECODIFICAVEL)
-                     ->whereIn('algoritmos.nome',$array_algoritmos_encontrados)
-                        ->where('niveis.nivel','=',(DINAMICO__NIVEL+$contador))
-                           ->orderby('niveis.nivel')
-                              ->get();
-
-            if(count($algoritmos)<=0)
-               $achou=false;
-            else
-               $achou=true;
-            $contador++;            
-         }
-
-         // print_r($algoritmos);exit();
+         $algoritmos_selecionados = $this->getSelecionados($resultado,'id_algoritmo');
 
       }
       else
-         $algoritmos = $this->model->where('nome','=',trim($nome_algoritmo))->get();
+      {
+         $resultado = $this->model->where('nome','=',trim($nome_algoritmo))->get();
+         $algoritmos_selecionados = $this->getSelecionados($resultado,'id');
+      }
 
-      // retorna o maior nivel
-      if(count($algoritmos)>0)    
-         return $algoritmos[0]->id;
+      if(count($algoritmos_selecionados)>0)    
+         return $algoritmos_selecionados[0];
       else
          return 0;
+   }
+
+   private function getSelecionados($resultado,$campo)
+   {
+      $array= array();
+      foreach ($resultado as $linha):
+         array_push($array,$linha->{$campo});
+      endforeach;
+      return $array;
    }
 
    public function CalcularMediaTempo($id_alg)
@@ -270,9 +244,9 @@ class algoritmosController extends controller
    public function CRIPTOGRAFAR_DES($texto,$id_alg=0)
    {
       $cipher = new Crypt_DES();
-      $cipher->setKey($this->chave_publica = GerarChaveAleatoria(24,false,false,false));
+      $cipher->setKey($this->chave_publica = $this->GerarChaveAleatoria(24,false,false,false));
       $cipher->setIV(crypt_random_string($cipher->getBlockLength() >> 3));
-      $codificado = $cipher->encrypt($texto);
+      $codificado = utf8_encode($cipher->encrypt($texto));
       return  ($codificado);
    }    
 
