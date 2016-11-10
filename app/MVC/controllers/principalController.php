@@ -49,14 +49,51 @@ class principalController extends controller
    }
    
   
+   public function getCodificarTeste()
+   {
+      $JSON_EXEMPLO = array(
+                     'JSON' =>
+                     '{
+                        "client_id":"e8dcdfd79e471bb794e80fcc056d876752fcc8c6",
+                        "client_token":"9fa41145a075ee591b8d07cafd0e9fac5384eb08",
+                        "texto":"Driely da Silva Aoyama",
+                        "tamanho":1,
+                        "nivel":3,
+                        "tempo_processamento":1
+                      }');
+      $Api_Request = new AppSec();
+      $retorno = $Api_Request->post()
+         ->with(array('URL'=>asset('codificar'), "DATA"=>$JSON_EXEMPLO))
+            ->run();
+      echo $retorno;
+   }
 
-   public function getCodificar($JSON)
+   public function getDecodificarTeste()
+   {
+      $JSON_EXEMPLO = array(
+                     'JSON' =>
+                     '{
+                        "client_id":"e8dcdfd79e471bb794e80fcc056d876752fcc8c6",
+                        "client_token":"9fa41145a075ee591b8d07cafd0e9fac5384eb08",
+                        "mensagem":"820a0c2cc037d33b37a416caadd332c1f58c9795",
+                        "protocolo":"059632aa82b3e570439f343634df82044362808d"
+                     }');
+      $Api_Request = new AppSec();
+      $retorno = $Api_Request->post()
+         ->with(array('URL'=>asset('decodificar'), "DATA"=>$JSON_EXEMPLO))
+            ->run();
+      echo $retorno;
+   }
+
+   public function postCodificar()
    {
       try
       {
+         $JSON = $_POST['JSON'];
+         // echo urldecode(  $JSON );exit();
          // recebe como parameto um JSON com todos os dados da requisicao
          // e o converte em um objeto para utiliza-lo
-         $request = (object) json_decode($JSON);
+         $request = (object) json_decode(urldecode($JSON));
 
          // verifica se a chave fornecida pelo cliente é valida, se sim ele guardará na sessão
          // os dados deste cliente para utiliza-las futuramente
@@ -87,23 +124,22 @@ class principalController extends controller
             
             //executa a codificação do texto de acordo com os parametros anteriormente calculados
 
-            $criptografado = $this->algoritmosController->Criptografar($algoritmo_selecionado,$request->texto);
+            $criptografado = $this->algoritmosController->Criptografar($algoritmo_selecionado,$request->texto,$request->client_id);
 
             try 
             {
-               $app = new AppSec();
-               $app->response()->header('Content-Type', 'application/json;charset=utf-8');
+               $Api_Response = new AppSec();
+               $Api_Response->response()->header('Content-Type', 'application/json;charset=utf-8');
                // retornar chave do processamento
-               $app->get("/",
-                              function($criptografado)
-                              {
-                                 $REPOSTAS = [  "criptografado"=>utf8_encode($criptografado['codificado'])  ];
-                                 return json_encode(["mensagem"=>utf8_encode($criptografado['codificado']),"protocolo"=>$criptografado['protocolo']  ]);
-                              },
-                              ['criptografado'=>$criptografado]
-                        );
-               // :apiresponse
-               echo $app->run();
+               $Api_Response->get("/",
+                                    function($criptografado)
+                                    {
+                                       $REPOSTAS = [  "criptografado"=>utf8_encode($criptografado['codificado'])  ];
+                                       return json_encode(["mensagem"=>utf8_encode($criptografado['codificado']),"protocolo"=>$criptografado['protocolo']  ]);
+                                    },
+                                    ['criptografado'=>$criptografado]
+                              );
+               echo $Api_Response->run();
             } 
             catch (Exception $e) 
             {
@@ -116,6 +152,59 @@ class principalController extends controller
       {
          echo json_response(200, "ERRO - EXCEPTION ".$erro);
       }
+   }
+
+   public function postDecodificar()
+   {
+      try
+      {
+         $JSON = $_POST['JSON'];
+         // echo urldecode(  $JSON );exit();
+         // recebe como parameto um JSON com todos os dados da requisicao
+         // e o converte em um objeto para utiliza-lo
+         $request = (object) json_decode(urldecode($JSON));
+
+         // verifica se a chave fornecida pelo cliente é valida, se sim ele guardará na sessão
+         // os dados deste cliente para utiliza-las futuramente
+         if($this->usuariosController->validaUsuario($request->client_id,$request->client_token))
+         {  
+            if($this->validaprotocolo($request->protocolo,$request->client_id))
+            { 
+               try 
+               {
+                  $mensagem = $this->algoritmosController->desCriptografar($request->protocolo,$request->mensagem);
+                  $Api_Response = new AppSec();
+                  $Api_Response->response()->header('Content-Type', 'application/json;charset=utf-8');
+                  // retornar chave do processamento
+                  $Api_Response->get("/",
+                                       function($mensagem)
+                                       {
+                                          return json_encode(["mensagem"=>utf8_encode($mensagem)]);
+                                       },
+                                       ['criptografado'=>$mensagem]
+                                 );
+                  echo $Api_Response->run();
+               } 
+               catch (Exception $e) 
+               {
+                   echo json_encode($e,JSON_UNESCAPED_UNICODE);
+               }   
+            }     
+         }
+         // $this->sair();
+      }
+      catch (Exception $erro) 
+      {
+         echo json_response(200, "ERRO - EXCEPTION ".$erro);
+      }
+   }
+
+   private function validaprotocolo($protocolo,$client_id)
+   {
+      if(count($usuario = query("select * from protocolos where protocolo='{$protocolo}' and client_id='{$client_id}'"))>0)
+         return true;
+      else
+         return false;
    }
 
    private function sair()

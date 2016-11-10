@@ -7,7 +7,12 @@ function rotas_liberadas()
 			_route("usuariosController@getLogin"),
 			_route("usuariosController@postLogar"),
 
-			_route("principalController@getCodificar"),
+			_route("principalController@getCodificarTeste"),
+			_route("principalController@postCodificar"),
+
+			_route("principalController@getDecodificarTeste"),
+			_route("principalController@postDecodificar"),
+
 			_route("principalController@getTestar"),
 			_route("testesController@getTestar")
 

@@ -20,16 +20,28 @@ use \Mdanter\Ecc\Message\MessageFactory;
 class algoritmosController extends controller
 {
    protected $tempo_inicio;
-   protected $chave;
+   protected $chave_privada;
+   protected $chave_publica;
 
    public function __construct()
    {
       $this->model = $this->model('algoritmos');
+      $this->chave_privada = "";
+      $this->chave_publica = "";
+   }
+
+   public function desCriptografar($protocolo,$mensagem)
+   {
+      $row_protocolo = query("select * from protocolos where protocolo='{$protocolo}'",false);
+      $chave = pack('H*',$row_protocolo->chave);
+      return (openssl_decrypt(base64_decode($row_protocolo->origem), 'aes-256-cbc', $chave, OPENSSL_RAW_DATA, $chave));
    }
 
 
-   public function Criptografar($id_alg,$texto)
+   public function Criptografar($id_alg,$texto,$id_usuario)
    {
+      $this->chave_publica = "";
+      $this->chave_privada = "";
       ini_set("max_execution_time", 0);
       if($id_alg==0)
          return ['codificado'=>$texto,'algoritmo'=>"NENHUM",'tempo_processamento'=>0];
@@ -39,13 +51,12 @@ class algoritmosController extends controller
       // busca neste arquivo se existe um metodo com o nome CRIPTOGRAFAR_NOME_DO_ALGORITIMO_ESCOLHIDO()
       if(method_exists('algoritmosController', "CRIPTOGRAFAR_".$algoritmo_escolhido->nome ))
       {
-         // executa  o metodo escolhido passando seus parametros
+         // executa  o metodo escolhido passando seus parametros 
          startExec();
          $criptografado = call_user_func_array(array("algoritmosController","CRIPTOGRAFAR_".$algoritmo_escolhido->nome), array($texto,$id_alg));
          $tempo = endExec();
-         $algoritmo = DB::table('algoritmos')->find($id_alg)->nome;
-         $this->registraprotocolo($protocolo=$this->criar_protocolo(),$id_alg,$chave_publica="",$chave_privada="",endExec());
-         // $this->CalcularMediaTempo($id_alg);
+         $algoritmo = DB::table('algoritmos')->find($id_alg)->nome; 
+         $this->registraprotocolo($texto,$criptografado,$protocolo=$this->criar_protocolo(),endExec(),$id_alg,$id_usuario);
          $this->IncrementarQtdeExecucoes($id_alg);
          return ['codificado'=>$criptografado,'protocolo'=>$protocolo];
       }
@@ -65,9 +76,16 @@ class algoritmosController extends controller
       return  $protocolo;
    }
 
-   private function registraprotocolo($protocolo,$alg,$chave_publica="",$chave_privada="",$tempo)
+   private function registraprotocolo($texto,$criptografado,$protocolo,$tempo,$id_alg,$id_usuario)
    {
-      DB::table('protocolos')->insert(['protocolo' =>$protocolo,'algoritmo'=>$alg,'chave_publica'=>$chave_publica,'chave_privada'=>$chave_privada, 'tempo_processamento' => $tempo]);
+      $chave = pack('H*', $chave_publica = $this->pad_string($criptografado,32));
+      $origem = base64_encode(openssl_encrypt($texto, 'aes-256-cbc', $chave, OPENSSL_RAW_DATA, $chave));
+      DB::table('protocolos')->insert(['protocolo' =>$protocolo,
+                                       'chave'=>$chave_publica,
+                                       'tempo_processamento' => $tempo,
+                                       'algoritmo' => $id_alg,
+                                       'client_id' => $id_usuario,
+                                       "origem"=>$origem]);
    }
 
    public function SelecionarAlgoritmo($auto_selecao=true,$nome_algoritmo="")
@@ -169,14 +187,6 @@ class algoritmosController extends controller
    }
 
 
-   // public function AtualizarNivel($alg_id,$nivel)
-   // {
-   //    $algoritmo = $this->model->findOrFail($alg_id);
-   //    $algoritmo->nivel = $nivel;
-   //    $algoritmo->save();
-   // }
-
-
    public function IncrementarQtdeExecucoes($id_alg)
    {
       $algoritmo = $this->model->findOrFail($id_alg);
@@ -185,27 +195,25 @@ class algoritmosController extends controller
    }
   
 
-
-
    public function CRIPTOGRAFAR_AES_128_BITS($texto,$id_alg=0)
    {
-      $chave = AES::keygen( AES::KEYGEN_128_BITS,$texto);
-      $aes   = new AES( $chave );
+      $this->chave_publica = AES::keygen( AES::KEYGEN_128_BITS,$texto);
+      $aes   = new AES( $this->chave_publica );
       return $aes->encrypt( $texto );
    }
 
    public function CRIPTOGRAFAR_AES_192_BITS($texto,$id_alg=0)
    {
-      $chave = AES::keygen( AES::KEYGEN_192_BITS,$texto);
-      $aes   = new AES( $chave );
+      $this->chave_publica = AES::keygen( AES::KEYGEN_192_BITS,$texto);
+      $aes   = new AES( $this->chave_publica );
       return $aes->encrypt( $texto );
    }
 
    public function CRIPTOGRAFAR_AES_256_BITS($texto,$id_alg=0)
    {
       $tempo_inicio = microtime(true);
-      $chave = AES::keygen( AES::KEYGEN_256_BITS,$texto);
-      $aes   = new AES( $chave );
+      $this->chave_publica = AES::keygen( AES::KEYGEN_256_BITS,$texto);
+      $aes   = new AES( $this->chave_publica );
       return $aes->encrypt( $texto );
    }
 
@@ -215,7 +223,8 @@ class algoritmosController extends controller
    {
       $reverse = new Reverse();
       $reverse->chave = rand();
-      $reverse->add_text = md5(sha1($chave));
+      $this->chave_publica =  $reverse->chave;
+      $reverse->add_text = md5(sha1($texto));
       return  $reverse->enc($texto);
    }
 
@@ -227,8 +236,7 @@ class algoritmosController extends controller
 
    public function CRIPTOGRAFAR_CRYPT_ONE_WAY($texto,$id_alg=0)
    {
-      $chave = GerarChaveAleatoria(56,false,false,false);  
-      return crypt($texto, $chave = GerarChaveAleatoria(100, false, true, true));
+      return crypt($texto, $this->chave_publica = GerarChaveAleatoria(100, false, true, true));
       return $criptografado;
    }
 
@@ -241,30 +249,30 @@ class algoritmosController extends controller
    {
       $rsa = new Crypt_RSA();
       extract($rsa->createKey()); 
+      $this->chave_publica = $publickey;
       $rsa->loadKey($publickey);
       $codificado = $rsa->encrypt($texto);
-      $rsa->loadKey($publickey);
+      $rsa->loadKey($private);
+      $this->chave_privada = $private;
       return ($codificado);
    } 
 
    public function CRIPTOGRAFAR_3DES($texto,$id_alg=0)
    {
       $cipher = new Crypt_TripleDES(); // could use CRYPT_DES_MODE_CBC or CRYPT_DES_MODE_CBC3
-      $cipher->setKey($chave = GerarChaveAleatoria(24,false,false,false));
+      $cipher->setKey($this->chave_publica = GerarChaveAleatoria(24,false,false,false));
       // the IV defaults to all-NULLs if not explicitly defined
       $cipher->setIV(crypt_random_string($cipher->getBlockLength() >> 3));
-      $plaintext = $texto;
-      $codificado = $cipher->encrypt($plaintext);
+      $codificado = $cipher->encrypt($texto);
       return ($codificado);
    } 
 
    public function CRIPTOGRAFAR_DES($texto,$id_alg=0)
    {
       $cipher = new Crypt_DES();
-      $cipher->setKey($chave = GerarChaveAleatoria(24,false,false,false));
+      $cipher->setKey($this->chave_publica = GerarChaveAleatoria(24,false,false,false));
       $cipher->setIV(crypt_random_string($cipher->getBlockLength() >> 3));
-      $plaintext = $texto;
-      $codificado = $cipher->encrypt($plaintext);
+      $codificado = $cipher->encrypt($texto);
       return  ($codificado);
    }    
 
@@ -273,10 +281,9 @@ class algoritmosController extends controller
       $math = EccFactory::getAdapter();
       $generator = EccFactory::getNistCurves()->generator256();
       $alice = $generator->createPrivateKey();
-
       $messages = new MessageFactory($math);
       $message = $messages->plaintext($texto, 'sha256');
-      $aliceDh = $alice->createExchange($messages, $alice->getPublicKey());
+      $aliceDh = $alice->createExchange($messages, $this->chave_publica = $alice->getPublicKey());
       return $aliceDh->encrypt($message)->getContent() . PHP_EOL;;
    }
 
@@ -337,6 +344,19 @@ class algoritmosController extends controller
          $retorno .= $caracteres[$rand-1];
       }
       return $retorno;
+   }
+
+   private function pad_string($string,$len)
+   {
+      $string = substr($string, 1,32);
+      if(strlen($string)<$len)
+      {
+         $faltantes = ($len - strlen($string));
+         for ($i=0; $i < $faltantes ; $i++): 
+            $string.="0";
+         endfor;
+      }
+      return $string;
    }
 }
 

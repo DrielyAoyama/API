@@ -170,3 +170,4 @@ function _route($string)
 {
 	return strtoupper($string);
 }
+

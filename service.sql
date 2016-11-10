@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: 09-Nov-2016 às 01:41
+-- Generation Time: 09-Nov-2016 às 20:23
 -- Versão do servidor: 10.1.16-MariaDB
 -- PHP Version: 5.6.24
 
@@ -49,8 +49,8 @@ INSERT INTO `algoritmos` (`id`, `nome`, `media_tempo_processamento`, `qtde_execu
 (4, 'MD5', 0.000020206, 4, 'TEXTO', 'HASH', 'N', '2016-11-04 23:08:06', NULL),
 (5, '3DES', 0.000781217, 3, 'TEXTO', 'SIMETRICO', 'S', '2016-10-26 11:58:31', NULL),
 (6, 'RSA', 17.8452, 0, 'TEXTO', 'ASSIMETRICA', 'S', '2016-08-29 23:50:36', NULL),
-(7, 'ECC', 0.412727, 2, 'TEXTO', 'ASSIMETRICA', 'S', '2016-10-26 11:52:37', NULL),
-(8, 'SHA1', 0.0000240008, 20, 'TEXTO', 'HASH', 'N', '2016-11-09 00:39:08', NULL),
+(7, 'ECC', 0.412727, 7, 'TEXTO', 'ASSIMETRICA', 'S', '2016-11-09 13:20:23', NULL),
+(8, 'SHA1', 0.0000240008, 67, 'TEXTO', 'HASH', 'N', '2016-11-09 19:21:25', NULL),
 (9, 'SHA256', 0.00000214577, 0, 'TEXTO', 'HASH', 'N', '2016-08-29 23:50:36', NULL),
 (10, 'SHA512', 0.00000214577, 0, 'TEXTO', 'HASH', 'N', '2016-08-29 23:50:36', NULL),
 (11, 'SIMON', 0.00112915, 0, 'ARRAY', 'LEVE', 'S', '2016-08-29 23:47:28', NULL),
@@ -272,19 +272,20 @@ INSERT INTO `pesos` (`id`, `nome_algoritmo`, `_1`, `_2`, `_3`, `_4`, `_5`, `_6`,
 
 CREATE TABLE `protocolos` (
   `protocolo` varchar(100) NOT NULL,
+  `chave` longtext NOT NULL,
   `algoritmo` int(11) NOT NULL,
-  `chave_publica` varchar(500) NOT NULL,
-  `chave_privada` varchar(500) NOT NULL,
-  `tempo_processamento` int(11) NOT NULL
+  `tempo_processamento` float NOT NULL,
+  `origem` longtext NOT NULL,
+  `client_id` longtext NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Extraindo dados da tabela `protocolos`
 --
 
-INSERT INTO `protocolos` (`protocolo`, `algoritmo`, `chave_publica`, `chave_privada`, `tempo_processamento`) VALUES
-('1ce5ea0b07094b14c9eefc98afcae1096d9618ce', 8, '', '', 0),
-('4880d5aaf301daa66568404d02b1bcb85f37c809', 8, '', '', 0);
+INSERT INTO `protocolos` (`protocolo`, `chave`, `algoritmo`, `tempo_processamento`, `origem`, `client_id`) VALUES
+('059632aa82b3e570439f343634df82044362808d', '20a0c2cc037d33b37a416caadd332c1f', 8, 0.00159311, 'EsPStTmMVoQ3HIDBk9WDe1UFx5MyR1ljC142PUUlhyY=', 'e8dcdfd79e471bb794e80fcc056d876752fcc8c6'),
+('d7dde7733133469a00faa50dd8ba165518c75b1c', '20a0c2cc037d33b37a416caadd332c1f', 8, 0.00135612, 'EsPStTmMVoQ3HIDBk9WDe1UFx5MyR1ljC142PUUlhyY=', 'e8dcdfd79e471bb794e80fcc056d876752fcc8c6');
 
 -- --------------------------------------------------------
 
