@@ -1,18 +1,13 @@
 <?php
 class middleware
 {
-	public function middleware_geral($controller, $metodo)
+	public function liberado($controller, $metodo)
 	{	
 		$rota_requerida = _route($controller.'@'.$metodo);
-		if ($this->RotaLiberada($rota_requerida))
+		if (middleware::RotaLiberada($rota_requerida))
 		  	return true;
 		else
-		{
-			if(CheckAuth())
-					return true;
-			else
-				redirecionar(asset('usuarios/login'));
-		}
+			return Auth::CheckAuth();
 	}
 
 	private function RotaLiberada($rota_requerida)

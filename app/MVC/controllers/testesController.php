@@ -35,12 +35,10 @@ class testesController extends controller
       ini_set("max_execution_time", 0);
       $texto = '';  
       $texto = "0"; 
-
       foreach ($algoritmos as $alg):
          $resultado = $this->testar($alg->nome,$texto);  
          DB::table('testes_velocidade')->insert($resultado);
-
-         DB::table('pesos')->insert(array('nome_algoritmo'=>$alg->nome ));    
+         DB::table('pesos')->insert(array('nome_algoritmo'=>$alg->nome,'id_algoritmo'=>$alg->id ));    
          $algoritmos = DB::table('testes_velocidade')->get();
          foreach ($algoritmos as $alg):
             DB::table('pesos')->where('nome_algoritmo','=',$alg->algoritimo)->update(  array("_".$alg->peso_tamanho => $alg->peso_tempo)   );
@@ -76,16 +74,9 @@ class testesController extends controller
       return $this->Processar($algoritimo,endExec());
    }
 
-   public function getTestar($algoritimo,$texto)
+   public function getTestar()
    {
-      ini_set("max_execution_time", 0);
-      set_time_limit(0);
-      startExec();
-
-      $resultado = call_user_func_array(array("algoritmosController","CRIPTOGRAFAR_".$algoritimo), array($texto));
-      unset($texto);
-      echo utf8_decode($resultado);
-      echo '<br>'.endExec();;
+      POST(['url'=>asset('testes/testar')]);
    }
 
    public function gerarArquivo($tamanho)
@@ -164,7 +155,7 @@ class testesController extends controller
 
    public function getDadosTestes($algoritmo="",$tamanho="",$ordem="tempo")
    {
-      $sql = "select t.id, t.algoritimo, t.tempo, t.tamanho, a.tipo_cifra as tipo from testes_velocidade t join algoritmos a on t.algoritimo=a.nome where 1=1 ";
+      $sql = "select t.id, t.algoritimo, t.tempo_seg as tempo, t.tamanho, a.tipo_cifra as tipo from testes_velocidade t join algoritmos a on t.algoritimo=a.nome where 1=1 ";
       if(($algoritmo!="")&&($algoritmo!='TODOS'))
          $sql.=" and t.algoritimo='{$algoritmo}'";
        if(($tamanho!="")&&($tamanho!='TODOS'))
@@ -173,22 +164,6 @@ class testesController extends controller
       echo json_encode($testes);
    }
 
-   public function getFaixasTestes()
-   {
-      $faixa_1mb = query('select min(t.tempo) as tempo, t.algoritimo,a.tipo_cifra as tipo from testes_velocidade t join algoritmos a on a.nome=t.algoritimo where tamanho="1mb"');
-      $faixa_10mb = query('select min(t.tempo) as tempo, t.algoritimo,a.tipo_cifra as tipo from testes_velocidade t join algoritmos a on a.nome=t.algoritimo where tamanho="10mb"');
-      $faixa_20mb = query('select min(t.tempo) as tempo, t.algoritimo,a.tipo_cifra as tipo from testes_velocidade t join algoritmos a on a.nome=t.algoritimo where tamanho="20mb"');
-      $faixa_50mb = query('select min(t.tempo) as tempo, t.algoritimo,a.tipo_cifra as tipo from testes_velocidade t join algoritmos a on a.nome=t.algoritimo where tamanho="50mb"');
-      $faixa_100mb = query('select min(t.tempo) as tempo, t.algoritimo,a.tipo_cifra as tipo from testes_velocidade t join algoritmos a on a.nome=t.algoritimo where tamanho="100mb"');
-      $faixa_500mb = query('select min(t.tempo) as tempo, t.algoritimo,a.tipo_cifra as tipo from testes_velocidade t join algoritmos a on a.nome=t.algoritimo where tamanho="500mb"');
-      $faixa_1gb = query('select min(t.tempo) as tempo, t.algoritimo,a.tipo_cifra as tipo from testes_velocidade t join algoritmos a on a.nome=t.algoritimo where tamanho="1gb"');
-
-       $tipo_assimetrica = query('select min(t.tempo) as tempo, t.algoritimo,a.tipo_cifra as tipo from testes_velocidade t join algoritmos a on a.nome=t.algoritimo where a.tipo_cifra="ASSIMETRICA"');
-       $tipo_simetrica = query('select min(t.tempo) as tempo, t.algoritimo,a.tipo_cifra as tipo from testes_velocidade t join algoritmos a on a.nome=t.algoritimo where a.tipo_cifra="SIMETRICA"');
-       $tipo_leve = query('select min(t.tempo) as tempo, t.algoritimo,a.tipo_cifra as tipo from testes_velocidade t join algoritmos a on a.nome=t.algoritimo where a.tipo_cifra="LEVE"');
-       $tipo_hash = query('select min(t.tempo) as tempo, t.algoritimo,a.tipo_cifra as tipo from testes_velocidade t join algoritmos a on a.nome=t.algoritimo where a.tipo_cifra="HASH"');
-      echo json_encode(compact('tipo_simetrica','tipo_assimetrica','tipo_leve','tipo_hash','faixa_1mb','faixa_10mb','faixa_20mb','faixa_50mb','faixa_100mb','faixa_500mb','faixa_1gb'));
-   }
 
    public function getAlgoritmos()
    {

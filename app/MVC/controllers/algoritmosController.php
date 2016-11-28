@@ -26,8 +26,8 @@ class algoritmosController extends controller
    public function __construct()
    {
       $this->model = $this->model('algoritmos');
-      $this->chave_privada = "";
-      $this->chave_publica = "";
+      $chave_chave_privada = "";
+      $chave_publica = "";
    }
 
    public function desCriptografar($protocolo,$mensagem)
@@ -43,8 +43,8 @@ class algoritmosController extends controller
 
    public function Criptografar($id_alg,$texto,$id_usuario)
    {
-      $this->chave_publica = "";
-      $this->chave_privada = "";
+      $chave_publica = "";
+      $chave_chave_privada = "";
       ini_set("max_execution_time", 0);
       if($id_alg==0)
          return ['codificado'=>$texto,'algoritmo'=>"NENHUM",'tempo_processamento'=>0];
@@ -69,7 +69,7 @@ class algoritmosController extends controller
    {
       $novo = false;
       while(!$novo):
-         $protocolo = $this->GerarChaveAleatoria(30,true,true,true);          
+         $protocolo = GerarChaveAleatoria(30,true,true,true);          
          $protocolo = sha1(md5($protocolo));
          $result = query("select * from protocolos where protocolo='{$protocolo}'");
          if(count($result)<=0)
@@ -83,7 +83,7 @@ class algoritmosController extends controller
    {
       $novo = false;
       while(!$novo):
-         $chave_privada = $this->GerarChaveAleatoria(30,true,true,true);          
+         $chave_privada = GerarChaveAleatoria(30,true,true,true);          
          $chave_privada = sha1(md5($protocolo));
          $result = query("select * from protocolos where protocolo='{$chave_privada}'");
          if(count($result)<=0)
@@ -128,7 +128,7 @@ class algoritmosController extends controller
          $resultado = $this->model->where('nome','=',trim($nome_algoritmo))->get();
          $algoritmos_selecionados = $this->getSelecionados($resultado,'id');
       }
-
+      
       if(count($algoritmos_selecionados)>0)    
          return $algoritmos_selecionados[0];
       else
@@ -171,23 +171,23 @@ class algoritmosController extends controller
 
    public function CRIPTOGRAFAR_AES_128_BITS($texto,$id_alg=0)
    {
-      $this->chave_publica = AES::keygen( AES::KEYGEN_128_BITS,$texto);
-      $aes   = new AES( $this->chave_publica );
+      $chave_publica = AES::keygen( AES::KEYGEN_128_BITS,$texto);
+      $aes   = new AES($chave_publica);
       return $aes->encrypt( $texto );
    }
 
    public function CRIPTOGRAFAR_AES_192_BITS($texto,$id_alg=0)
    {
-      $this->chave_publica = AES::keygen( AES::KEYGEN_192_BITS,$texto);
-      $aes   = new AES( $this->chave_publica );
+      $chave_publica = AES::keygen( AES::KEYGEN_192_BITS,$texto);
+      $aes   = new AES( $chave_publica );
       return $aes->encrypt( $texto );
    }
 
    public function CRIPTOGRAFAR_AES_256_BITS($texto,$id_alg=0)
    {
       $tempo_inicio = microtime(true);
-      $this->chave_publica = AES::keygen( AES::KEYGEN_256_BITS,$texto);
-      $aes   = new AES( $this->chave_publica );
+      $chave_publica = AES::keygen( AES::KEYGEN_256_BITS,$texto);
+      $aes   = new AES( $chave_publica );
       return $aes->encrypt( $texto );
    }
 
@@ -197,7 +197,7 @@ class algoritmosController extends controller
    {
       $reverse = new Reverse();
       $reverse->chave = rand();
-      $this->chave_publica =  $reverse->chave;
+      $chave_publica =  $reverse->chave;
       $reverse->add_text = md5(sha1($texto));
       return  $reverse->enc($texto);
    }
@@ -210,7 +210,7 @@ class algoritmosController extends controller
 
    public function CRIPTOGRAFAR_CRYPT_ONE_WAY($texto,$id_alg=0)
    {
-      return crypt($texto, $this->chave_publica = GerarChaveAleatoria(100, false, true, true));
+      return crypt($texto, $chave_publica = GerarChaveAleatoria(100, false, true, true));
       return $criptografado;
    }
 
@@ -223,18 +223,18 @@ class algoritmosController extends controller
    {
       $rsa = new Crypt_RSA();
       extract($rsa->createKey()); 
-      $this->chave_publica = $publickey;
+      $chave_publica = $publickey;
       $rsa->loadKey($publickey);
       $codificado = $rsa->encrypt($texto);
-      $rsa->loadKey($private);
-      $this->chave_privada = $private;
+      // $rsa->loadKey($private);
+      // $chave_chave_privada = $private;
       return ($codificado);
    } 
 
    public function CRIPTOGRAFAR_3DES($texto,$id_alg=0)
    {
       $cipher = new Crypt_TripleDES(); // could use CRYPT_DES_MODE_CBC or CRYPT_DES_MODE_CBC3
-      $cipher->setKey($this->chave_publica = GerarChaveAleatoria(24,false,false,false));
+      $cipher->setKey($chave_publica = GerarChaveAleatoria(24,false,false,false));
       // the IV defaults to all-NULLs if not explicitly defined
       $cipher->setIV(crypt_random_string($cipher->getBlockLength() >> 3));
       $codificado = $cipher->encrypt($texto);
@@ -244,7 +244,7 @@ class algoritmosController extends controller
    public function CRIPTOGRAFAR_DES($texto,$id_alg=0)
    {
       $cipher = new Crypt_DES();
-      $cipher->setKey($this->chave_publica = $this->GerarChaveAleatoria(24,false,false,false));
+      $cipher->setKey($chave_publica = GerarChaveAleatoria(24,false,false,false));
       $cipher->setIV(crypt_random_string($cipher->getBlockLength() >> 3));
       $codificado = utf8_encode($cipher->encrypt($texto));
       return  ($codificado);
@@ -257,7 +257,7 @@ class algoritmosController extends controller
       $alice = $generator->createPrivateKey();
       $messages = new MessageFactory($math);
       $message = $messages->plaintext($texto, 'sha256');
-      $aliceDh = $alice->createExchange($messages, $this->chave_publica = $alice->getPublicKey());
+      $aliceDh = $alice->createExchange($messages, $chave_publica = $alice->getPublicKey());
       return $aliceDh->encrypt($message)->getContent() . PHP_EOL;;
    }
 
@@ -294,7 +294,21 @@ class algoritmosController extends controller
       return $speck->criptografar();
    }
 
-   public function GerarChaveAleatoria($tamanho = 8, $maiusculas = true, $numeros = true, $simbolos = false)
+   private function pad_string($string,$len)
+   {
+      $string = substr($string, 1,32);
+      if(strlen($string)<$len)
+      {
+         $faltantes = ($len - strlen($string));
+         for ($i=0; $i < $faltantes ; $i++): 
+            $string.="0";
+         endfor;
+      }
+      return $string;
+   }
+}
+
+function GerarChaveAleatoria($tamanho = 8, $maiusculas = true, $numeros = true, $simbolos = false)
    {
            // Caracteres de cada tipo
       $lmin = 'abcdefghijklmnopqrstuvwxyz';
@@ -319,20 +333,6 @@ class algoritmosController extends controller
       }
       return $retorno;
    }
-
-   private function pad_string($string,$len)
-   {
-      $string = substr($string, 1,32);
-      if(strlen($string)<$len)
-      {
-         $faltantes = ($len - strlen($string));
-         for ($i=0; $i < $faltantes ; $i++): 
-            $string.="0";
-         endfor;
-      }
-      return $string;
-   }
-}
 
 
 

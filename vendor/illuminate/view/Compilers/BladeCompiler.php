@@ -4,6 +4,7 @@ namespace Illuminate\View\Compilers;
 
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use Script;
 
 class BladeCompiler extends Compiler implements CompilerInterface
 {
@@ -106,13 +107,14 @@ class BladeCompiler extends Compiler implements CompilerInterface
      */
     public function compile($path = null)
     {
+        $script = str_replace(".blade.php", ".script.js", $path);
         if ($path) {
             $this->setPath($path);
         }
 
         if (! is_null($this->cachePath)) {
-            $contents = $this->compileString($this->files->get($this->getPath()));
-
+            $contents = $this->compileString( $this->files->get($this->getPath()));
+            $contents.= $this->compileString(Script::set($script));
             $this->files->put($this->getCompiledPath($this->getPath()), $contents);
         }
     }
@@ -153,7 +155,6 @@ class BladeCompiler extends Compiler implements CompilerInterface
         }
 
         $this->footer = [];
-
         // Here we will loop through all of the tokens returned by the Zend lexer and
         // parse each one into the corresponding valid PHP. We will then have this
         // template as the correctly rendered PHP that can be rendered natively.
@@ -161,9 +162,11 @@ class BladeCompiler extends Compiler implements CompilerInterface
             $result .= is_array($token) ? $this->parseToken($token) : $token;
         }
 
+
         if (! empty($this->verbatimBlocks)) {
             $result = $this->restoreVerbatimBlocks($result);
         }
+
 
         // If there are any footer lines that need to get added to a template we will
         // add them here at the end of the template. This gets used mainly for the

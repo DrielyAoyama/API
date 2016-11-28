@@ -1,37 +1,63 @@
 <?php
-function CheckAuth()
-{
-	// LimpaUsuario();
-	// SalvaUsuario(array('id'=>1,'nome'=>'teste','email'=>'teste'));
+use Illuminate\Database\Capsule\Manager as DB;
 
-	if(isset($_SESSION['dados_usuario']))
-		return true;
-	else
-		return false;
-}
-
-function SalvaUsuario($usuario =  [])
-{
-	$_SESSION['dados_usuario'] = (object) $usuario;
-}
-
-
-function LimpaUsuario()
-{
-	$_SESSION['dados_usuario'] = array();
-	unset($_SESSION['dados_usuario']);
-	session_destroy();
-}
-
-function Auth($variavel="id")
-{
-	if(isset($_SESSION['dados_usuario']))
+class Auth 
+{	
+	public function CheckAuth()
 	{
-		if($_SESSION['dados_usuario']->{$variavel}=="")
-			return null;
+		if(isset($_SESSION['dados_usuario'])) 
+		{
+			return true;
+		}
 		else
-			return $_SESSION['dados_usuario']->{$variavel};
+		{
+			Auth::LimpaUsuario();
+			return false;
+		}
 	}
-	else
-		return null;
+	public function LimpaUsuario()
+	{
+		unset($_SESSION['dados_usuario']);
+		session_destroy();
+	}
+
+	public function Auth($variavel="id")
+	{
+		if(isset($_SESSION['dados_usuario']))
+		{
+			if($_SESSION['dados_usuario']->{$variavel}=="")
+				return null;
+			else
+				return $_SESSION['dados_usuario']->{$variavel};
+		}
+		else
+			return null;
+	}
+
+	public function validaRequest($request)
+	{
+		if(!isset($request['token']))
+			return false;
+		else
+			return Auth::validaToken($request['token']);
+	}
+
+	public function validaToken($token)
+	{
+		if(Auth::getToken()==$token)
+			return true;
+		else
+			return false;
+	}
+
+	private function getToken()
+	{
+		return md5('12345');
+	}
+
+	public function SetUsuario($usuario =  [])
+	{
+		$_SESSION['dados_usuario'] = (object) $usuario;
+	}
+
 }

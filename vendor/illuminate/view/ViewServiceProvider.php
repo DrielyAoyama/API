@@ -33,7 +33,6 @@ class ViewServiceProvider extends ServiceProvider
     {
         $this->app->singleton('view.engine.resolver', function () {
             $resolver = new EngineResolver;
-
             // Next we will register the various engines with the resolver so that the
             // environment can resolve the engines it needs for various views based
             // on the extension of view files. We call a method for each engines.
@@ -119,7 +118,6 @@ class ViewServiceProvider extends ServiceProvider
             $env->setContainer($app);
 
             $env->share('app', $app);
-
             return $env;
         });
     }

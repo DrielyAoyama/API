@@ -140,9 +140,7 @@ class Factory implements FactoryContract
     public function file($path, $data = [], $mergeData = [])
     {
         $data = array_merge($mergeData, $this->parseData($data));
-
         $this->callCreator($view = new View($this, $this->getEngineFromPath($path), $path, $path, $data));
-
         return $view;
     }
 
@@ -165,8 +163,10 @@ class Factory implements FactoryContract
         $path = $this->finder->find($view);
 
         $data = array_merge($mergeData, $this->parseData($data));
-
-        $this->callCreator($view = new View($this, $this->getEngineFromPath($path), $view, $path, $data));
+       // print_r($this);exit();
+        $engine =  $this->getEngineFromPath($path);
+        $view = new View($this,$engine, $view, $path, $data);
+        $this->callCreator($view);
 
         return $view;
     }
@@ -305,8 +305,8 @@ class Factory implements FactoryContract
         if (! $extension = $this->getExtension($path)) {
             throw new InvalidArgumentException("Unrecognized extension in file: $path");
         }
-
         $engine = $this->extensions[$extension];
+
 
         return $this->engines->resolve($engine);
     }

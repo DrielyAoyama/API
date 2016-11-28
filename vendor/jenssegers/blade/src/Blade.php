@@ -54,6 +54,7 @@ class Blade {
         }, true);
     }
 
+
     /**
      * Render shortcut.
      *

@@ -89,7 +89,7 @@ class principalController extends controller
    {
       try
       {
-         $JSON = $_POST['JSON'];
+         $JSON = Request::get('POST')['JSON'];
          // echo urldecode(  $JSON );exit();
          // recebe como parameto um JSON com todos os dados da requisicao
          // e o converte em um objeto para utiliza-lo
@@ -158,7 +158,7 @@ class principalController extends controller
    {
       try
       {
-         $JSON = $_POST['JSON'];
+         $JSON = Request::get('POST')['JSON'];
          // echo urldecode(  $JSON );exit();
          // recebe como parameto um JSON com todos os dados da requisicao
          // e o converte em um objeto para utiliza-lo

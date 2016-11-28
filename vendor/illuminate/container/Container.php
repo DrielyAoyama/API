@@ -617,14 +617,15 @@ class Container implements ArrayAccess, ContainerContract
     {
         $abstract = $this->getAlias($this->normalize($abstract));
 
+
         // If an instance of the type is currently being managed as a singleton we'll
         // just return an existing instance instead of instantiating new instances
         // so the developer can keep using the same objects instance every time.
         if (isset($this->instances[$abstract])) {
             return $this->instances[$abstract];
         }
-
         $concrete = $this->getConcrete($abstract);
+
 
         // We're ready to instantiate an instance of the concrete type registered for
         // the binding. This will instantiate the types, as well as resolve any of
@@ -635,6 +636,7 @@ class Container implements ArrayAccess, ContainerContract
             $object = $this->make($concrete, $parameters);
         }
 
+        
         // If we defined any extenders for this type, we'll need to spin through them
         // and apply them to the object being built. This allows for the extension
         // of services, such as changing configuration or decorating the object.
@@ -731,6 +733,7 @@ class Container implements ArrayAccess, ContainerContract
         // If the concrete type is actually a Closure, we will just execute it and
         // hand back the results of the functions, which allows functions to be
         // used as resolvers for more fine-tuned resolution of these objects.
+
         if ($concrete instanceof Closure) {
             return $concrete($this, $parameters);
         }

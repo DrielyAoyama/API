@@ -18,23 +18,26 @@ class usuariosController extends controller
 
    public function postLogar()
    {
-
+      $_POST = Request::get('POST');
       $senha = md5($_POST['senha']);
       $email = $_POST['email'];
       $usuario = query("select * from usuarios where email = '{$email}' and senha='{$senha}'");
       if(count($usuario)<=0)
+      { 
+         Auth::LimpaUsuario();
          echo json_encode("NAO");
+      }
       else
       {
-         SalvaUsuario(array('id'=>$usuario[0]->id));
+         Auth::SetUsuario(array('id'=>$usuario[0]->id));
          echo json_encode("SIM");
       }
    }
    
    public function getSair()
    {
-      LimpaUsuario();
-      redirecionar(asset(''));
+      Auth::LimpaUsuario();
+      Route::direcionar(asset(''));
    }
 
    //temporário

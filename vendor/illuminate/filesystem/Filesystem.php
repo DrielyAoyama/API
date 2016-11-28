@@ -2,6 +2,7 @@
 
 namespace Illuminate\Filesystem;
 
+use Script;
 use ErrorException;
 use FilesystemIterator;
 use Symfony\Component\Finder\Finder;

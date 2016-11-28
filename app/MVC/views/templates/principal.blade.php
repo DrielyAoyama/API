@@ -31,7 +31,6 @@
 
     <!--  Fonts and icons     -->
     <link href="http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" rel="stylesheet">
-    <link href='https://fonts.googleapis.com/css?family=Muli:400,300' rel='stylesheet' type='text/css'>
     <link  href="{{PASTA_PUBLIC}}/arquivos/assets/css/themify-icons.css" rel="stylesheet" />
 
 
@@ -48,7 +47,7 @@
 
     	<div class="sidebar-wrapper">
             <div class="logo">
-                <a href="http://www.creative-tim.com" class="simple-text">
+                <a href="{{asset('')}}" class="simple-text">
                     ServiceAPI
                 </a>
             </div>
@@ -140,17 +139,6 @@
 	<!-- Paper Dashboard DEMO methods, don't include it in your project! -->
 	<script src="{{PASTA_PUBLIC}}/arquivos/assets/js/demo.js"></script>
 	<script src="{{PASTA_PUBLIC}}/arquivos/assets/js/custom.js"></script>
-
-
-	<script type="text/javascript">
-		$( document ).ready(function() 
-		{
-		   var controller = "{{$_SESSION['controller']}}";
-		   $('#MENU'+controller).addClass("active"); 
-		});
-	</script>
-
-	@yield('scripts')
 
 
 </html>
